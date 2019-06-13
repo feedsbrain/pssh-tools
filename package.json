@@ -1,11 +1,11 @@
 {
   "name": "pssh-tools",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Tools to generate PSSH Data and PSSH Box",
   "main": "index.js",
   "scripts": {
     "pretest": "standard --fix",
-    "test": "ava"
+    "test": "ava --verbose"
   },
   "keywords": [
     "pssh",

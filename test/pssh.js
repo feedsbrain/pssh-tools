@@ -1,23 +1,38 @@
 const test = require('ava')
 const pssh = require('../index')
+const utils = require('../lib/pssh/utils')
 
 const KID = '0123456789abcdef0123456789abcdef'
-const WV_PSSH_DATA = 'CAESEAEjRWeJq83vASNFZ4mrze8aDXdpZGV2aW5lX3Rlc3QiD2NlbmMtY29udGVudC1pZA=='
-const PR_PSSH_DATA = 'IAMAAAEAAQAWAzwAPwB4AG0AbAAgAHYAZQByAHMAaQBvAG4APQAiADEALgAwACIAIABlAG4AYwBvAGQAaQBuAGcAPQAiAFUAVABGAC0AOAAiAD8APgA8AFcAUgBNAEgARQBBAEQARQBSACAAeABtAGwAbgBzAD0AIgBoAHQAdABwADoALwAvAHMAYwBoAGUAbQBhAHMALgBtAGkAYwByAG8AcwBvAGYAdAAuAGMAbwBtAC8ARABSAE0ALwAyADAAMAA3AC8AMAAzAC8AUABsAGEAeQBSAGUAYQBkAHkASABlAGEAZABlAHIAIgAgAHYAZQByAHMAaQBvAG4APQAiADQALgAyAC4AMAAuADAAIgA+ADwARABBAFQAQQA+ADwAUABSAE8AVABFAEMAVABJAE4ARgBPAD4APABLAEkARABTAD4APABLAEkARAAgAEEATABHAEkARAA9ACIAQQBFAFMAQwBUAFIAIgAgAEMASABFAEMASwBTAFUATQA9ACIASQBTAGUAbgBvAHUASQA4AGYATQBZAD0AIgAgAFYAQQBMAFUARQA9ACIAMABOAEIAcgBxAGsAegBUAFoAbwBCAEUAcQBqAEkAMgB5AHgARABKAGIAUQA9AD0AIgA+ADwALwBLAEkARAA+ADwALwBLAEkARABTAD4APAAvAFAAUgBPAFQARQBDAFQASQBOAEYATwA+ADwATABBAF8AVQBSAEwAPgBoAHQAdABwAHMAOgAvAC8AdABlAHMAdAAuAHAAbABhAHkAcgBlAGEAZAB5AC4AbQBpAGMAcgBvAHMAbwBmAHQALgBjAG8AbQAvAHMAZQByAHYAaQBjAGUALwByAGkAZwBoAHQAcwBtAGEAbgBhAGcAZQByAC4AYQBzAG0AeAA/AGMAZgBnAD0AKABrAGkAZAA6ADAATgBCAHIAcQBrAHoAVABaAG8AQgBFAHEAagBJADIAeQB4AEQASgBiAFEAPQA9ACkAPAAvAEwAQQBfAFUAUgBMAD4APAAvAEQAQQBUAEEAPgA8AC8AVwBSAE0ASABFAEEARABFAFIAPgA='
 const LA_URL = 'https://test.playready.microsoft.com/service/rightsmanager.asmx'
 
-test('Widevine PSSH Data Generator Test', async t => {
-  const wvTools = pssh.tools(pssh.system.WIDEVINE)
-  const payload = { contentId: 'cenc-content-id', trackType: 'HD', keyIds: [KID], provider: 'widevine_test', protectionScheme: 'cenc', dataOnly: true }
+test('Should return Widevine PSSH version 0 with no KID', async t => {
+  const wvTools = pssh.tools(pssh.system.WIDEVINE.name)
+  const payload = { contentId: 'cenc-content-id', trackType: 'HD', keyIds: [KID], provider: 'widevine_test', protectionScheme: 'cenc', dataOnly: false }
   await wvTools.generatePssh(payload).then((data) => {
-    t.is(data, WV_PSSH_DATA)
+    console.log(data)
+    let result = utils.decodePSSH(data)
+    t.is(result.version, 0)
+    t.is(result.keyCount, 0)
   })
 })
 
-test('Playready PSSH Data Generator Test', async t => {
-  const prTools = pssh.tools(pssh.system.PLAYREADY)
-  const payload = { keyIds: [KID], licenseUrl: LA_URL, dataOnly: true }
+test.skip('Should return Widevine PSSH version 0 with KIDs', async t => {
+  const wvTools = pssh.tools(pssh.system.WIDEVINE.name)
+  const payload = { contentId: 'cenc-content-id', trackType: 'HD', keyIds: [KID], provider: 'widevine_test', protectionScheme: 'cenc', dataOnly: false }
+  await wvTools.generatePssh(payload).then((data) => {
+    console.log(data)
+    let result = utils.decodePSSH(data)
+    t.is(result.version, 0)
+    t.not(result.keyCount, 0)
+  })
+})
+
+test('Should return PlayReady PSSH version 1 with KID', async t => {
+  const prTools = pssh.tools(pssh.system.PLAYREADY.name)
+  const payload = { keyIds: [KID], licenseUrl: LA_URL, dataOnly: false }
   await prTools.generatePssh(payload).then((data) => {
-    t.is(data, PR_PSSH_DATA)
+    let result = utils.decodePSSH(data)
+    t.is(result.version, 1)
+    t.is(result.keyCount, 1)
   })
 })
