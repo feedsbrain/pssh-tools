@@ -1,6 +1,6 @@
 {
   "name": "pssh-tools",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Tools to generate PSSH Data and PSSH Box",
   "main": "index.js",
   "scripts": {
@@ -18,8 +18,7 @@
   "author": "Indra Gunawan <feedsbrain@gmail.com>",
   "license": "BSD",
   "dependencies": {
-    "protobufjs": "^6.8.8",
-    "pssh-box-static": "^1.0.0"
+    "protobufjs": "^6.8.8"
   },
   "devDependencies": {
     "ava": "^2.1.0",
