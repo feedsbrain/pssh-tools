@@ -1,6 +1,6 @@
 {
   "name": "pssh-tools",
-  "version": "0.0.10",
+  "version": "0.1.0-alpha2",
   "description": "Tools to generate PSSH Data and PSSH Box",
   "main": "index.js",
   "scripts": {
