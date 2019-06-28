@@ -74,3 +74,11 @@ test('Should be able to decode PlayReady content key', t => {
 
   t.is(result, '0123456789abcdef0123456789abcdef')
 })
+
+test('Should be able to encode PlayReady content key', t => {
+  const result = pssh.playready.encodeKey('0123456789abcdef0123456789abcdef')
+  console.log(`\nKey: ${JSON.stringify(result, null, 2)}\n`)
+
+  t.not(result, undefined)
+  t.is(result.kid, PR_CONTENT_KEY)
+})
