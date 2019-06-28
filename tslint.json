@@ -1,0 +1,15 @@
+{
+    "extends": "tslint-config-standard",
+    "rules": {
+      "semicolon": [false],
+      "no-default-export": [false],
+      "variable-name": [false],
+      "forin": [false],
+      "indent": [
+        true,
+        "spaces",
+        2
+      ]
+    }
+  }
+  
