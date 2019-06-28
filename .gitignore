@@ -62,3 +62,6 @@ typings/
 
 # IDE Settings
 .vscode
+
+# Build
+dist

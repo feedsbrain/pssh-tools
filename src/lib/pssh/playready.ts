@@ -1,10 +1,16 @@
-const crypto = require('crypto')
-const tools = require('./tools')
+import * as crypto from 'crypto'
+import * as tools from './tools'
+import * as T from '../types'
 
 const DRM_AES_KEYSIZE_128 = 16
 const TEST_KEY_SEED = 'XVBovsmzhP9gRIZxWfFta3VVRPzVEWmJsazEJ46I'
 
-const swapEndian = (keyId) => {
+interface KeyItem {
+  kid: string
+  checksum: string
+}
+
+const swapEndian = (keyId: string): Buffer => {
   // Microsoft GUID endianness
   const keyIdBytes = Buffer.from(keyId, 'hex')
   const keyIdBuffer = Buffer.concat(
@@ -20,7 +26,7 @@ const swapEndian = (keyId) => {
 }
 
 // From: http://download.microsoft.com/download/2/3/8/238F67D9-1B8B-48D3-AB83-9C00112268B2/PlayReady%20Header%20Object%202015-08-13-FINAL-CL.PDF
-const generateContentKey = (keyId, keySeed = TEST_KEY_SEED) => {
+const generateContentKey = (keyId: string, keySeed: string = TEST_KEY_SEED): KeyItem => {
   // Microsoft GUID endianness
   const keyIdBuffer = swapEndian(keyId)
 
@@ -51,7 +57,7 @@ const generateContentKey = (keyId, keySeed = TEST_KEY_SEED) => {
 
   // Calculate Content Key
   const contentBuffer = Buffer.alloc(DRM_AES_KEYSIZE_128)
-  for (var i = 0; i < DRM_AES_KEYSIZE_128; i++) {
+  for (let i = 0; i < DRM_AES_KEYSIZE_128; i++) {
     let value = digestA[i] ^ digestA[i + DRM_AES_KEYSIZE_128] ^ digestB[i] ^ digestB[i + DRM_AES_KEYSIZE_128] ^ digestC[i] ^ digestC[i + DRM_AES_KEYSIZE_128]
     contentBuffer[i] = value
   }
@@ -67,7 +73,7 @@ const generateContentKey = (keyId, keySeed = TEST_KEY_SEED) => {
   }
 }
 
-const constructProXML4 = (keyId, licenseUrl, keySeed) => {
+const constructProXML4 = (keyId: string, licenseUrl: string, keySeed: string): string => {
   console.log('KeySeed:', keySeed)
   let key = keySeed && keySeed.length ? generateContentKey(keyId, keySeed) : encodeKey(keyId)
 
@@ -84,7 +90,7 @@ const constructProXML4 = (keyId, licenseUrl, keySeed) => {
   return xmlArray.join('')
 }
 
-const constructProXML = (keyIds, licenseUrl, keySeed) => {
+const constructProXML = (keyIds: string[], licenseUrl: string, keySeed: string): string => {
   console.log('KeySeed:', keySeed)
   let contentKeys = keyIds.map((k) => {
     return keySeed && keySeed.length ? generateContentKey(k, keySeed) : encodeKey(k)
@@ -118,8 +124,8 @@ const constructProXML = (keyIds, licenseUrl, keySeed) => {
   return xmlArray.join('')
 }
 
-const getPsshData = ({ keyIds, licenseUrl, keySeed, compatibilityMode }) => {
-  const xmlData = compatibilityMode === true ? constructProXML4(keyIds[0], licenseUrl, keySeed) : constructProXML(keyIds, licenseUrl, keySeed)
+const getPsshData = (request: T.PlayReadyDataEncodeConfig): string => {
+  const xmlData = request.compatibilityMode === true ? constructProXML4(request.keyIds[0], request.licenseUrl, request.keySeed) : constructProXML(request.keyIds, request.licenseUrl, request.keySeed)
 
   // Play Ready Object Header
   let headerBytes = Buffer.from(xmlData, 'utf16le')
@@ -140,44 +146,35 @@ const getPsshData = ({ keyIds, licenseUrl, keySeed, compatibilityMode }) => {
   return Buffer.from(data).toString('base64')
 }
 
-const getPsshBox = ({ keyIds, licenseUrl, keySeed, compatibilityMode }) => {
+const getPsshBox = (request: T.PlayReadyDataEncodeConfig) => {
   // data
-  const data = getPsshData({ keyIds, licenseUrl, keySeed, compatibilityMode })
-  let psshHeader = tools.getPsshHeader({
+  const data = getPsshData(request)
+  const requestData: T.HeaderConfig = {
     systemId: tools.system.PLAYREADY.id,
-    keyIds: keyIds,
+    keyIds: request.keyIds,
     data: data
-  })
+  }
+  let psshHeader = tools.getPsshHeader(requestData)
   return psshHeader
 }
 
-const encodePssh = ({ keyIds = [], licenseUrl = undefined, keySeed = undefined, compatibilityMode = false, dataOnly = false }) => {
-  if (dataOnly) {
-    return getPsshData({
-      keyIds: keyIds,
-      licenseUrl: licenseUrl,
-      keySeed: keySeed,
-      compatibilityMode: compatibilityMode
-    })
+export const encodePssh = (request: T.PlayReadyEncodeConfig) => {
+  if (request.dataOnly) {
+    return getPsshData(request)
   }
-  return getPsshBox({
-    keyIds: keyIds,
-    licenseUrl: licenseUrl,
-    keySeed: keySeed,
-    compatibilityMode: compatibilityMode
-  })
+  return getPsshBox(request)
 }
 
-const decodeData = (data) => {
+export const decodeData = (data: string) => {
   return tools.decodePsshData(tools.system.PLAYREADY.name, data)
 }
 
-const decodeKey = (keyData) => {
+export const decodeKey = (keyData: string) => {
   const keyBuffer = Buffer.from(keyData, 'base64')
   return swapEndian(keyBuffer.toString('hex')).toString('hex')
 }
 
-const encodeKey = (keyData) => {
+export const encodeKey = (keyData: string): KeyItem => {
   const keyBuffer = swapEndian(keyData)
 
   const cipher = crypto.createCipheriv('aes-128-ecb', keyBuffer, '').setAutoPadding(false)
@@ -187,11 +184,4 @@ const encodeKey = (keyData) => {
     kid: keyBuffer.toString('base64'),
     checksum
   }
-}
-
-module.exports = {
-  decodeData,
-  encodePssh,
-  decodeKey,
-  encodeKey
 }

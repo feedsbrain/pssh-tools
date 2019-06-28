@@ -1,14 +1,15 @@
-const path = require('path')
-const protobuf = require('protobufjs')
+import * as path from 'path'
+import * as protobuf from 'protobufjs'
+import { HeaderConfig, PlayReadyData, WidevineData, DecodeResult, PsshData } from '../types';
 
-const system = {
+export const system = {
   WIDEVINE: { id: 'EDEF8BA979D64ACEA3C827DCD51D21ED', name: 'Widevine' },
   PLAYREADY: { id: '9A04F07998404286AB92E65BE0885F95', name: 'PlayReady' },
   MARLIN: { id: '5E629AF538DA4063897797FFBD9902D4', name: 'Marlin' },
   COMMON: { id: '1077EFECC0B24D02ACE33C1E52E2FB4B', name: 'Common' }
 }
 
-const decodeWidevineHeader = (data) => {
+const decodeWidevineHeader = (data: Buffer) => {
   const protoFile = path.join(__dirname, 'proto', 'WidevineCencHeader.proto')
   const root = protobuf.loadSync(protoFile)
 
@@ -24,24 +25,24 @@ const decodeWidevineHeader = (data) => {
   return header
 }
 
-const createPsshHeader = (version) => {
+const createPsshHeader = (version: number) => {
   let psshHeaderBuffer = Buffer.from([0x70, 0x73, 0x73, 0x68])
 
   let versionBuffer = Buffer.alloc(2)
-  versionBuffer.writeInt16LE(version)
+  versionBuffer.writeInt16LE(version, 0)
 
   let flagBuffer = Buffer.alloc(2)
-  flagBuffer.writeInt16BE(0)
+  flagBuffer.writeInt16BE(0, 0)
 
   return Buffer.concat([psshHeaderBuffer, versionBuffer, flagBuffer])
 }
 
-const getPsshHeader = ({ systemId = undefined, keyIds = [], data }) => {
+export const getPsshHeader = (request: HeaderConfig): string => {
   const pssh = []
 
   // Set default to 0 for Widevine backward compatibility
   let version = 0
-  if (systemId !== system.WIDEVINE.id && keyIds.length > 0) {
+  if (request.systemId !== system.WIDEVINE.id && request.keyIds.length > 0) {
     version = 1
   }
 
@@ -50,18 +51,18 @@ const getPsshHeader = ({ systemId = undefined, keyIds = [], data }) => {
   pssh.push(psshHeader)
 
   // system id
-  const systemIdBuffer = Buffer.from(systemId, 'hex')
+  const systemIdBuffer = Buffer.from(request.systemId, 'hex')
   pssh.push(systemIdBuffer)
 
   // key ids
   if (version === 1) {
     let keyCountBuffer = Buffer.alloc(4)
-    keyCountBuffer.writeInt32BE(keyIds.length)
+    keyCountBuffer.writeInt32BE(request.keyIds.length, 0)
     pssh.push(keyCountBuffer)
 
     let kidsBufferArray = []
-    for (let i = 0; i < keyIds.length; i++) {
-      kidsBufferArray.push(Buffer.from(keyIds[i], 'hex'))
+    for (let i = 0; i < request.keyIds.length; i++) {
+      kidsBufferArray.push(Buffer.from(request.keyIds[i], 'hex'))
     }
     let kidsBuffer = Buffer.concat(kidsBufferArray)
     if (kidsBuffer.length > 0) {
@@ -70,9 +71,9 @@ const getPsshHeader = ({ systemId = undefined, keyIds = [], data }) => {
   }
 
   // data
-  let dataBuffer = Buffer.from(data, 'base64')
+  let dataBuffer = Buffer.from(request.data, 'base64')
   let dataSizeBuffer = Buffer.alloc(4)
-  dataSizeBuffer.writeInt32BE(dataBuffer.length)
+  dataSizeBuffer.writeInt32BE(dataBuffer.length, 0)
 
   pssh.push(dataSizeBuffer)
   pssh.push(dataBuffer)
@@ -83,14 +84,14 @@ const getPsshHeader = ({ systemId = undefined, keyIds = [], data }) => {
   pssh.forEach((data) => {
     totalLength += data.length
   })
-  psshSizeBuffer.writeInt32BE(totalLength)
+  psshSizeBuffer.writeInt32BE(totalLength, 0)
   pssh.unshift(psshSizeBuffer)
 
   return Buffer.concat(pssh).toString('base64')
 }
 
-const decodePssh = (data) => {
-  const result = {}
+export const decodePssh = (data: string) => {
+  const result: DecodeResult = {}
   const decodedData = Buffer.from(data, 'base64')
 
   // pssh header
@@ -136,7 +137,7 @@ const decodePssh = (data) => {
   // data size
   let dataSize = Buffer.alloc(4)
   decodedData.copy(dataSize, 0, dataStartPosition, dataStartPosition + dataSize.length)
-  let psshDataSize = parseInt(dataSize.readInt32BE(0))
+  let psshDataSize = dataSize.readInt32BE(0)
 
   // data
   let psshData = Buffer.alloc(psshDataSize)
@@ -190,7 +191,7 @@ const decodePssh = (data) => {
 
       // widevine data
       if (systemName === system.WIDEVINE.name && result.dataObject) {
-        let dataObject = result.dataObject
+        let dataObject: WidevineData = result.dataObject as WidevineData
         if (dataObject.keyId) {
           psshArray.push(`      Key IDs (${dataObject.keyId.length})`)
           dataObject.keyId.forEach((key) => {
@@ -208,7 +209,7 @@ const decodePssh = (data) => {
 
       // playready data
       if (systemName === system.PLAYREADY.name && result.dataObject) {
-        let dataObject = result.dataObject
+        let dataObject: PlayReadyData = result.dataObject as PlayReadyData
         psshArray.push(`      Record size(${dataObject.recordSize})`)
         if (dataObject.recordType) {
           switch (dataObject.recordType) {
@@ -235,14 +236,14 @@ const decodePssh = (data) => {
   return result
 }
 
-const decodeWVData = (psshData) => {
+const decodeWVData = (psshData: Buffer): WidevineData => {
   // cenc header
   let header = decodeWidevineHeader(psshData)
-  let wvData = {}
+  let wvData: WidevineData = {}
 
   if (header.keyId && header.keyId.length > 0) {
     wvData.widevineKeyCount = header.keyId.length
-    let decodedKeys = header.keyId.map((key) => {
+    let decodedKeys = header.keyId.map((key: string) => {
       return Buffer.from(key, 'base64').toString('hex')
     })
     wvData.keyId = decodedKeys
@@ -256,7 +257,7 @@ const decodeWVData = (psshData) => {
   return wvData
 }
 
-const decodePRData = (psshData) => {
+const decodePRData = (psshData: Buffer): PlayReadyData => {
 // pro header
   let proHeader = Buffer.alloc(10)
   psshData.copy(proHeader, 0, 0, 10)
@@ -275,8 +276,8 @@ const decodePRData = (psshData) => {
   }
 }
 
-const stringHexToGuid = (value) => {
-  var guidArray = []
+const stringHexToGuid = (value: string) => {
+  let guidArray = []
   guidArray.push(value.slice(0, 8))
   guidArray.push(value.slice(8, 12))
   guidArray.push(value.slice(12, 16))
@@ -285,7 +286,7 @@ const stringHexToGuid = (value) => {
   return guidArray.join('-')
 }
 
-const decodePsshData = (targetSystem, data) => {
+export const decodePsshData = (targetSystem: string, data: string) => {
   const dataBuffer = Buffer.from(data, 'base64')
   if (system.WIDEVINE.name === targetSystem) {
     return decodeWVData(dataBuffer)
@@ -294,11 +295,4 @@ const decodePsshData = (targetSystem, data) => {
     return decodePRData(dataBuffer)
   }
   return null
-}
-
-module.exports = {
-  system,
-  getPsshHeader,
-  decodePssh,
-  decodePsshData
 }
