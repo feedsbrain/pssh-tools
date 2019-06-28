@@ -74,7 +74,6 @@ const generateContentKey = (keyId: string, keySeed: string = TEST_KEY_SEED): Key
 }
 
 const constructProXML4 = (keyId: string, licenseUrl: string, keySeed: string): string => {
-  console.log('KeySeed:', keySeed)
   let key = keySeed && keySeed.length ? generateContentKey(keyId, keySeed) : encodeKey(keyId)
 
   let xmlArray = ['<WRMHEADER xmlns="http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader" version="4.0.0.0">']
@@ -91,7 +90,6 @@ const constructProXML4 = (keyId: string, licenseUrl: string, keySeed: string): s
 }
 
 const constructProXML = (keyIds: string[], licenseUrl: string, keySeed: string): string => {
-  console.log('KeySeed:', keySeed)
   let contentKeys = keyIds.map((k) => {
     return keySeed && keySeed.length ? generateContentKey(k, keySeed) : encodeKey(k)
   })
