@@ -39,10 +39,11 @@ const createPsshHeader = (version: number) => {
 
 export const getPsshHeader = (request: HeaderConfig): string => {
   const pssh = []
+  const keyIds = request.keyIds || []
 
   // Set default to 0 for Widevine backward compatibility
   let version = 0
-  if (request.systemId !== system.WIDEVINE.id && request.keyIds.length > 0) {
+  if (request.systemId !== system.WIDEVINE.id && keyIds.length > 0) {
     version = 1
   }
 
@@ -57,12 +58,12 @@ export const getPsshHeader = (request: HeaderConfig): string => {
   // key ids
   if (version === 1) {
     let keyCountBuffer = Buffer.alloc(4)
-    keyCountBuffer.writeInt32BE(request.keyIds.length, 0)
+    keyCountBuffer.writeInt32BE(keyIds.length, 0)
     pssh.push(keyCountBuffer)
 
     let kidsBufferArray = []
-    for (let i = 0; i < request.keyIds.length; i++) {
-      kidsBufferArray.push(Buffer.from(request.keyIds[i], 'hex'))
+    for (let i = 0; i < keyIds.length; i++) {
+      kidsBufferArray.push(Buffer.from(keyIds[i], 'hex'))
     }
     let kidsBuffer = Buffer.concat(kidsBufferArray)
     if (kidsBuffer.length > 0) {

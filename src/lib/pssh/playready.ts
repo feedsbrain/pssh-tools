@@ -125,7 +125,9 @@ const constructProXML = (keyIds: string[], licenseUrl: string, keySeed: string):
 }
 
 const getPsshData = (request: T.PlayReadyDataEncodeConfig): string => {
-  const xmlData = request.compatibilityMode === true ? constructProXML4(request.keyIds[0], request.licenseUrl, request.keySeed) : constructProXML(request.keyIds, request.licenseUrl, request.keySeed)
+  const licenseUrl = request.licenseUrl || ''
+  const keySeed = request.keySeed || ''
+  const xmlData = request.compatibilityMode === true ? constructProXML4(request.keyIds ? request.keyIds[0] : '', licenseUrl, keySeed) : constructProXML(request.keyIds ? request.keyIds : [], licenseUrl, keySeed)
 
   // Play Ready Object Header
   let headerBytes = Buffer.from(xmlData, 'utf16le')

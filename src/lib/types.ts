@@ -3,18 +3,18 @@ type Omit<K, KEY extends keyof K> = Pick<K, Exclude<keyof K, KEY>>
 export interface WidevineEncodeConfig {
   contentId: string
   dataOnly: boolean
-  keyIds: string[]
-  provider: string
-  protectionScheme: string
-  trackType: string
+  keyIds?: string[]
+  provider?: string
+  protectionScheme?: string
+  trackType?: string
 }
 
 export type WidevineDataEncodeConfig = Omit<WidevineEncodeConfig, 'dataOnly'>
 
 export interface PlayReadyEncodeConfig {
-  keyIds: string[]
-  licenseUrl: string
-  keySeed: string
+  keyIds?: string[]
+  licenseUrl?: string
+  keySeed?: string
   compatibilityMode: boolean
   dataOnly: boolean
 }
@@ -23,7 +23,7 @@ export type PlayReadyDataEncodeConfig = Omit<PlayReadyEncodeConfig, 'dataOnly'>
 
 export interface HeaderConfig {
   systemId: string
-  keyIds: string[]
+  keyIds?: string[]
   data: string
 }
 

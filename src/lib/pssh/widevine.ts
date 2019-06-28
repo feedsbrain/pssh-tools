@@ -21,7 +21,7 @@ const getPsshData = (request: T.WidevineDataEncodeConfig) => {
   const payload: WidevineProtoPayload = {
     algorithm: 1 // 0: Unencrypted - 1: AESCTR
   }
-  if (request.keyIds !== [] && request.keyIds.length > 0) {
+  if (request.keyIds && request.keyIds.length > 0) {
     const keyIdsBuffer = request.keyIds.map((key) => {
       return Buffer.from(key, 'hex')
     })
@@ -36,7 +36,7 @@ const getPsshData = (request: T.WidevineDataEncodeConfig) => {
   if (request.provider !== '') {
     payload.provider = request.provider
   }
-  if (request.protectionScheme !== '') {
+  if (request.protectionScheme) {
     payload.protectionScheme = Buffer.from(request.protectionScheme).readInt32BE(0)
   }
 
@@ -56,7 +56,7 @@ const getPsshBox = (request: T.WidevineDataEncodeConfig) => {
   const data = getPsshData(request)
   const requestData: T.HeaderConfig = {
     systemId: tools.system.WIDEVINE.id,
-    keyIds: request.keyIds,
+    keyIds: request.keyIds ,
     data: data
   }
   const psshHeader = tools.getPsshHeader(requestData)
