@@ -1,6 +1,6 @@
 {
   "name": "pssh-tools",
-  "version": "0.1.5",
+  "version": "1.0.0",
   "description": "Tools to generate PSSH Data and PSSH Box",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -30,6 +30,10 @@
     "tslint-config-standard": "^8.0.1",
     "typescript": "^3.5.2"
   },
+  "files": [
+    "dist/src/*",
+    "dist/src/**/*"
+  ],
   "ava": {
     "compileEnhancements": false,
     "extensions": [
