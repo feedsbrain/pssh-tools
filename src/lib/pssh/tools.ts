@@ -204,7 +204,9 @@ export const decodePssh = (data: string) => {
           psshArray.push(`      Provider: ${dataObject.provider}`)
         }
         if (dataObject.contentId) {
-          psshArray.push(`      Content ID: ${dataObject.contentId}`)
+          psshArray.push('      Content ID')
+          psshArray.push(`        - UTF-8: ${Buffer.from(dataObject.contentId, 'hex').toString('utf8')}`)
+          psshArray.push(`        - HEX  : ${dataObject.contentId}`)
         }
       }
 
