@@ -175,9 +175,10 @@ export const decodeKey = (keyData: string) => {
 }
 
 export const encodeKey = (keyData: string): KeyItem => {
+  const keyDataBuffer = Buffer.from(keyData, 'hex')
   const keyBuffer = swapEndian(keyData)
 
-  const cipher = crypto.createCipheriv('aes-128-ecb', keyBuffer, '').setAutoPadding(false)
+  const cipher = crypto.createCipheriv('aes-128-ecb', keyDataBuffer, '').setAutoPadding(false)
   const checksum = cipher.update(keyBuffer).slice(0, 8).toString('base64')
 
   return {
