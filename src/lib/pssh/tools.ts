@@ -261,7 +261,7 @@ const decodeWVData = (psshData: Buffer): WidevineData => {
 }
 
 const decodePRData = (psshData: Buffer, dataEncoding: string = 'utf8'): PlayReadyData => {
-// pro header
+  // pro header
   let proHeader = Buffer.alloc(10)
   psshData.copy(proHeader, 0, 0, 10)
 
