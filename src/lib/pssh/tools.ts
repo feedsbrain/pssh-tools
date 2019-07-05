@@ -275,7 +275,7 @@ const decodePRData = (psshData: Buffer): PlayReadyData => {
   return {
     recordSize: proDataLength,
     recordType: proRecordType,
-    recordXml: proData.toString('utf8')
+    recordXml: proData.toString('ascii')
   }
 }
 
