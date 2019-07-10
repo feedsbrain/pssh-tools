@@ -80,7 +80,7 @@ const constructProXML4 = (keyPair: T.KeyPair, licenseUrl: string, keySeed: strin
   xmlArray.push('<DATA>')
   xmlArray.push('<PROTECTINFO><KEYLEN>16</KEYLEN><ALGID>AESCTR</ALGID></PROTECTINFO>')
   xmlArray.push(`<KID>${key.kid}</KID><CHECKSUM>${key.checksum}</CHECKSUM>`)
-  if (licenseUrl && licenseUrl.length) {
+  if (licenseUrl && licenseUrl !== '') {
     xmlArray.push(`<LA_URL>${licenseUrl}</LA_URL>`)
   }
   xmlArray.push('</DATA>')
@@ -104,7 +104,7 @@ const constructProXML = (keyIds: T.KeyPair[], licenseUrl: string, keySeed: strin
   })
   xmlArray.push('</KIDS></PROTECTINFO>')
   // Construct License URL
-  if (licenseUrl) {
+  if (licenseUrl && licenseUrl !== '') {
     xmlArray.push('<LA_URL>')
     xmlArray.push(`${licenseUrl}?cfg=`)
     for (let i = 0; i < contentKeys.length; i++) {
