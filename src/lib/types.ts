@@ -11,8 +11,13 @@ export interface WidevineEncodeConfig {
 
 export type WidevineDataEncodeConfig = Omit<WidevineEncodeConfig, 'dataOnly'>
 
+export interface KeyPair {
+  kid: string
+  key: string
+}
+
 export interface PlayReadyEncodeConfig {
-  keyIds?: string[]
+  keyPairs?: KeyPair[]
   licenseUrl?: string
   keySeed?: string
   compatibilityMode: boolean

@@ -73,8 +73,8 @@ const generateContentKey = (keyId: string, keySeed: string = TEST_KEY_SEED): Key
   }
 }
 
-const constructProXML4 = (keyId: string, licenseUrl: string, keySeed: string): string => {
-  let key = keySeed && keySeed.length ? generateContentKey(keyId, keySeed) : encodeKey(keyId)
+const constructProXML4 = (keyPair: T.KeyPair, licenseUrl: string, keySeed: string): string => {
+  let key = keySeed && keySeed.length ? generateContentKey(keyPair.key, keySeed) : encodeKey(keyPair)
 
   let xmlArray = ['<WRMHEADER xmlns="http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader" version="4.0.0.0">']
   xmlArray.push('<DATA>')
@@ -89,9 +89,9 @@ const constructProXML4 = (keyId: string, licenseUrl: string, keySeed: string): s
   return xmlArray.join('')
 }
 
-const constructProXML = (keyIds: string[], licenseUrl: string, keySeed: string): string => {
+const constructProXML = (keyIds: T.KeyPair[], licenseUrl: string, keySeed: string): string => {
   let contentKeys = keyIds.map((k) => {
-    return keySeed && keySeed.length ? generateContentKey(k, keySeed) : encodeKey(k)
+    return keySeed && keySeed.length ? generateContentKey(k.kid, keySeed) : encodeKey(k)
   })
   let xmlArray = ['<?xml version="1.0" encoding="UTF-8"?>']
   xmlArray.push('<WRMHEADER xmlns="http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader" version="4.2.0.0">')
@@ -125,7 +125,8 @@ const constructProXML = (keyIds: string[], licenseUrl: string, keySeed: string):
 const getPsshData = (request: T.PlayReadyDataEncodeConfig): string => {
   const licenseUrl = request.licenseUrl || ''
   const keySeed = request.keySeed || ''
-  const xmlData = request.compatibilityMode === true ? constructProXML4(request.keyIds ? request.keyIds[0] : '', licenseUrl, keySeed) : constructProXML(request.keyIds ? request.keyIds : [], licenseUrl, keySeed)
+  const emptyKey = { key: '', kid: '' }
+  const xmlData = request.compatibilityMode === true ? constructProXML4(request.keyPairs ? request.keyPairs[0] : emptyKey, licenseUrl, keySeed) : constructProXML(request.keyPairs ? request.keyPairs : [], licenseUrl, keySeed)
 
   // Play Ready Object Header
   let headerBytes = Buffer.from(xmlData, 'utf16le')
@@ -151,7 +152,7 @@ const getPsshBox = (request: T.PlayReadyDataEncodeConfig) => {
   const data = getPsshData(request)
   const requestData: T.HeaderConfig = {
     systemId: tools.system.PLAYREADY.id,
-    keyIds: request.keyIds,
+    keyIds: request.keyPairs ? request.keyPairs.map((k) => k.kid) : [],
     data: data
   }
   let psshHeader = tools.getPsshHeader(requestData)
@@ -174,15 +175,15 @@ export const decodeKey = (keyData: string) => {
   return swapEndian(keyBuffer.toString('hex')).toString('hex')
 }
 
-export const encodeKey = (keyData: string): KeyItem => {
-  const keyDataBuffer = Buffer.from(keyData, 'hex')
-  const keyBuffer = swapEndian(keyData)
+export const encodeKey = (keyPair: T.KeyPair): KeyItem => {
+  const keyBuffer = Buffer.from(keyPair.key, 'hex')
+  const kidBuffer = swapEndian(keyPair.kid)
 
-  const cipher = crypto.createCipheriv('aes-128-ecb', keyDataBuffer, '').setAutoPadding(false)
-  const checksum = cipher.update(keyBuffer).slice(0, 8).toString('base64')
+  const cipher = crypto.createCipheriv('aes-128-ecb', keyBuffer, '').setAutoPadding(false)
+  const checksum = cipher.update(kidBuffer).slice(0, 8).toString('base64')
 
   return {
-    kid: keyBuffer.toString('base64'),
+    kid: kidBuffer.toString('base64'),
     checksum
   }
 }

@@ -3,11 +3,12 @@ import * as pssh from '../src/index'
 import { WidevineEncodeConfig, PlayReadyEncodeConfig, PlayReadyData } from '../src/lib/types';
 
 const KID = '0123456789abcdef0123456789abcdef'
+const KEY = '0123456789abcdef0123456789abcdef'
 const LA_URL = 'https://test.playready.microsoft.com/service/rightsmanager.asmx'
 const PSSH_TEST = 'AAAAQXBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAACESEJjp6TNjifjKjuoDBeg+VrUaCmludGVydHJ1c3QiASo='
 const PSSH_DATA_PR = 'pAIAAAEAAQCaAjwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4AWgAwAFUAagBBAGEAdQBKADcAOAAwAEIASQAwAFYAbgBpAGEAdgBOADcAdwA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgAwAHgAOQAxAFcARgB0AEcAWABCAEkAPQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APABMAEEAXwBVAFIATAA+AGgAdAB0AHAAOgAvAC8AdABlAHMAdAAuAHAAbABhAHkAcgBlAGEAZAB5AC4AbQBpAGMAcgBvAHMAbwBmAHQALgBjAG8AbQAvAHMAZQByAHYAaQBjAGUALwByAGkAZwBoAHQAcwBtAGEAbgBhAGcAZQByAC4AYQBzAG0AeAA8AC8ATABBAF8AVQBSAEwAPgA8AC8ARABBAFQAQQA+ADwALwBXAFIATQBIAEUAQQBEAEUAUgA+AA=='
-const PR_CONTENT_KEY = 'Z0UjAauJ780BI0VniavN7w=='
-const PR_CHECKSUM_KEY = '0x91WFtGXBI='
+const PRO_CONTENT_KEY = 'Z0UjAauJ780BI0VniavN7w=='
+const PRO_CHECKSUM_KEY = '0x91WFtGXBI='
 
 test('Should return Widevine PSSH version 0 without KID', t => {
   const payload: WidevineEncodeConfig = { contentId: 'cenc-content-id', trackType: 'HD', provider: 'widevine_test', keyIds: [], protectionScheme: 'cenc', dataOnly: false }
@@ -34,7 +35,7 @@ test('Should return Widevine PSSH version 0 with KIDs', t => {
 })
 
 test('Should return PlayReady PSSH version 1 with KID', t => {
-  const payload: PlayReadyEncodeConfig = { keyIds: [KID], licenseUrl: LA_URL, keySeed: '', compatibilityMode: false, dataOnly: false }
+  const payload: PlayReadyEncodeConfig = { keyPairs: [{ kid: KID, key: KEY }], licenseUrl: LA_URL, keySeed: '', compatibilityMode: false, dataOnly: false }
 
   const data = pssh.playready.encodePssh(payload)
   const result = pssh.tools.decodePssh(data)
@@ -48,7 +49,7 @@ test('Should return PlayReady PSSH version 1 with KID', t => {
 })
 
 test('Should return PlayReady PSSH version 1 with Header Version 4.0.0.0 and KID', t => {
-  const payload: PlayReadyEncodeConfig = { keyIds: [KID], licenseUrl: LA_URL, keySeed: '', compatibilityMode: true, dataOnly: false }
+  const payload: PlayReadyEncodeConfig = { keyPairs: [{ kid: KID, key: KEY }], licenseUrl: LA_URL, keySeed: '', compatibilityMode: true, dataOnly: false }
 
   const data = pssh.playready.encodePssh(payload)
   const result = pssh.tools.decodePssh(data)
@@ -80,17 +81,17 @@ test('Should be able to decode PlayReady PSSH data', t => {
 })
 
 test('Should be able to decode PlayReady content key', t => {
-  const result = pssh.playready.decodeKey(PR_CONTENT_KEY)
+  const result = pssh.playready.decodeKey(PRO_CONTENT_KEY)
   console.log(`\nKey ID: ${result}\n`)
 
-  t.is(result, '0123456789abcdef0123456789abcdef')
+  t.is(result, KEY)
 })
 
 test('Should be able to encode PlayReady content key with correct checksum', t => {
-  const result = pssh.playready.encodeKey('0123456789abcdef0123456789abcdef')
+  const result = pssh.playready.encodeKey({ kid: KID, key: KEY })
   console.log(`\nKey: ${JSON.stringify(result, null, 2)}\n`)
 
   t.not(result, undefined)
-  t.is(result.kid, PR_CONTENT_KEY)
-  t.is(result.checksum, PR_CHECKSUM_KEY)
+  t.is(result.kid, PRO_CONTENT_KEY)
+  t.is(result.checksum, PRO_CHECKSUM_KEY)
 })
