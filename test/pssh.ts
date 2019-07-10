@@ -95,3 +95,35 @@ test('Should be able to encode PlayReady content key with correct checksum', t =
   t.is(result.kid, PRO_CONTENT_KEY)
   t.is(result.checksum, PRO_CHECKSUM_KEY)
 })
+
+test('Should return PlayReady PRO without LA_URL', t => {
+  const payload: PlayReadyEncodeConfig = { keyPairs: [{ kid: KID, key: KEY }], keySeed: '', compatibilityMode: true, dataOnly: false }
+
+  const data = pssh.playready.encodePssh(payload)
+  const result = pssh.tools.decodePssh(data)
+
+  if (result.printPssh) {
+    console.log(result.printPssh())
+  }
+
+  if (result.dataObject) {
+    let pro: PlayReadyData = result.dataObject as PlayReadyData
+    t.is(pro.recordXml.includes(LA_URL), false)
+  }
+})
+
+test('Should return PlayReady PRO with LA_URL', t => {
+  const payload: PlayReadyEncodeConfig = { keyPairs: [{ kid: KID, key: KEY }], licenseUrl: LA_URL, keySeed: '', compatibilityMode: true, dataOnly: false }
+
+  const data = pssh.playready.encodePssh(payload)
+  const result = pssh.tools.decodePssh(data)
+
+  if (result.printPssh) {
+    console.log(result.printPssh())
+  }
+
+  if (result.dataObject) {
+    let pro: PlayReadyData = result.dataObject as PlayReadyData
+    t.is(pro.recordXml.includes(LA_URL), true)
+  }
+})

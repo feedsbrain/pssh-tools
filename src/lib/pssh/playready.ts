@@ -83,14 +83,17 @@ const constructProXML4 = (keyPair: T.KeyPair, licenseUrl: string, keySeed: strin
   if (licenseUrl && licenseUrl !== '') {
     xmlArray.push(`<LA_URL>${licenseUrl}</LA_URL>`)
   }
+  xmlArray.push('<CUSTOMATTRIBUTES>')
+  xmlArray.push('<IIS_DRM_VERSION>8.0.1906.32</IIS_DRM_VERSION>')
+  xmlArray.push('</CUSTOMATTRIBUTES>')
   xmlArray.push('</DATA>')
   xmlArray.push('</WRMHEADER>')
 
   return xmlArray.join('')
 }
 
-const constructProXML = (keyIds: T.KeyPair[], licenseUrl: string, keySeed: string): string => {
-  let contentKeys = keyIds.map((k) => {
+const constructProXML = (keyPairs: T.KeyPair[], licenseUrl: string, keySeed: string): string => {
+  let keyIds = keyPairs.map((k) => {
     return keySeed && keySeed.length ? generateContentKey(k.kid, keySeed) : encodeKey(k)
   })
   let xmlArray = ['<?xml version="1.0" encoding="UTF-8"?>']
@@ -98,7 +101,7 @@ const constructProXML = (keyIds: T.KeyPair[], licenseUrl: string, keySeed: strin
   xmlArray.push('<DATA>')
   xmlArray.push('<PROTECTINFO><KIDS>')
   // Construct Key
-  contentKeys.forEach((key) => {
+  keyIds.forEach((key) => {
     xmlArray.push(`<KID ALGID="AESCTR" CHECKSUM="${key.checksum}" VALUE="${key.kid}">`)
     xmlArray.push('</KID>')
   })
@@ -107,16 +110,18 @@ const constructProXML = (keyIds: T.KeyPair[], licenseUrl: string, keySeed: strin
   if (licenseUrl && licenseUrl !== '') {
     xmlArray.push('<LA_URL>')
     xmlArray.push(`${licenseUrl}?cfg=`)
-    for (let i = 0; i < contentKeys.length; i++) {
+    for (let i = 0; i < keyIds.length; i++) {
       // TODO: Options to pass predefined contentkey
-      xmlArray.push(`(kid:${contentKeys[i].kid})`)
-      if (i < keyIds.length - 1) {
+      xmlArray.push(`(kid:${keyIds[i].kid})`)
+      if (i < keyPairs.length - 1) {
         xmlArray.push(',')
       }
     }
     xmlArray.push('</LA_URL>')
   }
-
+  xmlArray.push('<CUSTOMATTRIBUTES>')
+  xmlArray.push('<IIS_DRM_VERSION>8.0.1906.32</IIS_DRM_VERSION>')
+  xmlArray.push('</CUSTOMATTRIBUTES>')
   xmlArray.push('</DATA>')
   xmlArray.push('</WRMHEADER>')
   return xmlArray.join('')

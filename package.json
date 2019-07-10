@@ -1,6 +1,6 @@
 {
   "name": "pssh-tools",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Tools to generate PSSH Data and PSSH Box",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -8,7 +8,7 @@
     "prepare": "tsc -p .",
     "build": "tsc -p .",
     "pretest": "tslint -p .",
-    "test": "tsc -p .&& cp -R ./src/lib/pssh/proto ./dist/src/lib/pssh/ && ava ./dist/test/*.js --verbose"
+    "test": "tsc -p . && cp -R ./src/lib/pssh/proto ./dist/src/lib/pssh/ && ava ./dist/test/*.js --verbose"
   },
   "keywords": [
     "pssh",
