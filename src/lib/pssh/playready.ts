@@ -7,6 +7,7 @@ const TEST_KEY_SEED = 'XVBovsmzhP9gRIZxWfFta3VVRPzVEWmJsazEJ46I'
 
 interface KeyItem {
   kid: string
+  key: string
   checksum: string
 }
 
@@ -28,7 +29,7 @@ const swapEndian = (keyId: string): Buffer => {
 // From: http://download.microsoft.com/download/2/3/8/238F67D9-1B8B-48D3-AB83-9C00112268B2/PlayReady%20Header%20Object%202015-08-13-FINAL-CL.PDF
 const generateContentKey = (keyId: string, keySeed: string = TEST_KEY_SEED): KeyItem => {
   // Microsoft GUID endianness
-  const keyIdBuffer = swapEndian(keyId)
+  const kidBuffer = swapEndian(keyId)
 
   // Truncate if key seed > 30 bytes
   const truncatedKeySeed = Buffer.alloc(30)
@@ -38,43 +39,43 @@ const generateContentKey = (keyId: string, keySeed: string = TEST_KEY_SEED): Key
   //
   // Create shaA buffer. It is the SHA of the truncatedKeySeed and the keyId
   //
-  const shaA = Buffer.concat([truncatedKeySeed, keyIdBuffer], truncatedKeySeed.length + keyIdBuffer.length)
+  const shaA = Buffer.concat([truncatedKeySeed, kidBuffer], truncatedKeySeed.length + kidBuffer.length)
   const digestA = crypto.createHash('sha256').update(shaA).digest()
 
   //
   // Create shaB buffer. It is the SHA of the truncatedKeySeed, the keyId, and
   // the truncatedKeySeed again.
   //
-  const shaB = Buffer.concat([truncatedKeySeed, keyIdBuffer, truncatedKeySeed], (2 * truncatedKeySeed.length) + keyIdBuffer.length)
+  const shaB = Buffer.concat([truncatedKeySeed, kidBuffer, truncatedKeySeed], (2 * truncatedKeySeed.length) + kidBuffer.length)
   const digestB = crypto.createHash('sha256').update(shaB).digest()
 
   //
   // Create shaC buffer. It is the SHA of the truncatedKeySeed, the keyId,
   // the truncatedKeySeed again, and the keyId again.
   //
-  const shaC = Buffer.concat([truncatedKeySeed, keyIdBuffer, truncatedKeySeed, keyIdBuffer], (2 * truncatedKeySeed.length) + (2 * keyIdBuffer.length))
+  const shaC = Buffer.concat([truncatedKeySeed, kidBuffer, truncatedKeySeed, kidBuffer], (2 * truncatedKeySeed.length) + (2 * kidBuffer.length))
   const digestC = crypto.createHash('sha256').update(shaC).digest()
 
   // Calculate Content Key
-  const contentBuffer = Buffer.alloc(DRM_AES_KEYSIZE_128)
+  const keyBuffer = Buffer.alloc(DRM_AES_KEYSIZE_128)
   for (let i = 0; i < DRM_AES_KEYSIZE_128; i++) {
     let value = digestA[i] ^ digestA[i + DRM_AES_KEYSIZE_128] ^ digestB[i] ^ digestB[i + DRM_AES_KEYSIZE_128] ^ digestC[i] ^ digestC[i + DRM_AES_KEYSIZE_128]
-    contentBuffer[i] = value
+    keyBuffer[i] = value
   }
-  const kid = contentBuffer.toString('base64')
 
   // Calculate checksum
-  const cipher = crypto.createCipheriv('aes-128-ecb', contentBuffer, '').setAutoPadding(false)
-  const checksum = cipher.update(keyIdBuffer).slice(0, 8).toString('base64')
+  const cipher = crypto.createCipheriv('aes-128-ecb', keyBuffer, '').setAutoPadding(false)
+  const checksum = cipher.update(kidBuffer).slice(0, 8).toString('base64')
 
   return {
-    kid,
+    kid: kidBuffer.toString('base64'),
+    key: keyBuffer.toString('base64'),
     checksum
   }
 }
 
 const constructProXML4 = (keyPair: T.KeyPair, licenseUrl: string, keySeed: string): string => {
-  let key = keySeed && keySeed.length ? generateContentKey(keyPair.key, keySeed) : encodeKey(keyPair)
+  let key = keySeed && keySeed.length ? generateContentKey(keyPair.key, keySeed) : encodeKey(keyPair, keySeed)
 
   let xmlArray = ['<WRMHEADER xmlns="http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader" version="4.0.0.0">']
   xmlArray.push('<DATA>')
@@ -94,7 +95,7 @@ const constructProXML4 = (keyPair: T.KeyPair, licenseUrl: string, keySeed: strin
 
 const constructProXML = (keyPairs: T.KeyPair[], licenseUrl: string, keySeed: string): string => {
   let keyIds = keyPairs.map((k) => {
-    return keySeed && keySeed.length ? generateContentKey(k.kid, keySeed) : encodeKey(k)
+    return keySeed && keySeed.length ? generateContentKey(k.kid, keySeed) : encodeKey(k, keySeed)
   })
   let xmlArray = ['<?xml version="1.0" encoding="UTF-8"?>']
   xmlArray.push('<WRMHEADER xmlns="http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader" version="4.2.0.0">')
@@ -180,15 +181,18 @@ export const decodeKey = (keyData: string) => {
   return swapEndian(keyBuffer.toString('hex')).toString('hex')
 }
 
-export const encodeKey = (keyPair: T.KeyPair): KeyItem => {
-  const keyBuffer = Buffer.from(keyPair.key, 'hex')
+export const encodeKey = (keyPair: T.KeyPair, keySeed: string = ''): KeyItem => {
   const kidBuffer = swapEndian(keyPair.kid)
+
+  const key = keySeed && keySeed.length ? Buffer.from(generateContentKey(keyPair.kid, keySeed).key, 'base64').toString('hex') : keyPair.key
+  const keyBuffer = Buffer.from(key, 'hex')
 
   const cipher = crypto.createCipheriv('aes-128-ecb', keyBuffer, '').setAutoPadding(false)
   const checksum = cipher.update(kidBuffer).slice(0, 8).toString('base64')
 
   return {
     kid: kidBuffer.toString('base64'),
+    key: swapEndian(key).toString('base64'),
     checksum
   }
 }
