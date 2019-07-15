@@ -1,6 +1,6 @@
 import * as path from 'path'
 import * as protobuf from 'protobufjs'
-import { HeaderConfig, PlayReadyData, WidevineData, DecodeResult, PsshData } from '../types';
+import * as T from '../types'
 
 export const system = {
   WIDEVINE: { id: 'EDEF8BA979D64ACEA3C827DCD51D21ED', name: 'Widevine' },
@@ -26,7 +26,7 @@ const decodeWidevineHeader = (data: Buffer) => {
 }
 
 const createPsshHeader = (version: number) => {
-  let psshHeaderBuffer = Buffer.from([0x70, 0x73, 0x73, 0x68])
+  let psshHeaderBuffer = Buffer.from('pssh')
 
   let versionBuffer = Buffer.alloc(2)
   versionBuffer.writeInt16LE(version, 0)
@@ -37,7 +37,7 @@ const createPsshHeader = (version: number) => {
   return Buffer.concat([psshHeaderBuffer, versionBuffer, flagBuffer])
 }
 
-export const getPsshHeader = (request: HeaderConfig): string => {
+export const getPsshHeader = (request: T.HeaderConfig): string => {
   const pssh = []
   const keyIds = request.keyIds || []
 
@@ -92,7 +92,7 @@ export const getPsshHeader = (request: HeaderConfig): string => {
 }
 
 export const decodePssh = (data: string) => {
-  const result: DecodeResult = {}
+  const result: T.DecodeResult = {}
   const decodedData = Buffer.from(data, 'base64')
 
   // pssh header
@@ -192,7 +192,7 @@ export const decodePssh = (data: string) => {
 
       // widevine data
       if (systemName === system.WIDEVINE.name && result.dataObject) {
-        let dataObject: WidevineData = result.dataObject as WidevineData
+        let dataObject: T.WidevineData = result.dataObject as T.WidevineData
         if (dataObject.keyId) {
           psshArray.push(`      Key IDs (${dataObject.keyId.length})`)
           dataObject.keyId.forEach((key) => {
@@ -212,7 +212,7 @@ export const decodePssh = (data: string) => {
 
       // playready data
       if (systemName === system.PLAYREADY.name && result.dataObject) {
-        let dataObject: PlayReadyData = result.dataObject as PlayReadyData
+        let dataObject: T.PlayReadyData = result.dataObject as T.PlayReadyData
         psshArray.push(`      Record size(${dataObject.recordSize})`)
         if (dataObject.recordType) {
           switch (dataObject.recordType) {
@@ -239,10 +239,10 @@ export const decodePssh = (data: string) => {
   return result
 }
 
-const decodeWVData = (psshData: Buffer): WidevineData => {
+const decodeWVData = (psshData: Buffer): T.WidevineData => {
   // cenc header
   let header = decodeWidevineHeader(psshData)
-  let wvData: WidevineData = {}
+  let wvData: T.WidevineData = {}
 
   if (header.keyId && header.keyId.length > 0) {
     wvData.widevineKeyCount = header.keyId.length
@@ -260,7 +260,7 @@ const decodeWVData = (psshData: Buffer): WidevineData => {
   return wvData
 }
 
-const decodePRData = (psshData: Buffer): PlayReadyData => {
+const decodePRData = (psshData: Buffer): T.PlayReadyData => {
   // pro header
   let proHeader = Buffer.alloc(10)
   psshData.copy(proHeader, 0, 0, 10)
