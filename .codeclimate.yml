@@ -6,6 +6,8 @@ checks:
   method-lines:
     config:
       threshold: 25
+  similar-code:
+    enabled: false
 plugins:
   duplication:
     enabled: true
