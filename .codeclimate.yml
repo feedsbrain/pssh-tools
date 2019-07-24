@@ -30,6 +30,8 @@ plugins:
     config: tslint.json
 exclude_patterns:
   - 'dist/'
+  - 'coverage/'
+  - '.nyc_output/'
   - '**/node_modules/'
   - '**/test/'
   - '**/*.d.ts'
