@@ -1,15 +1,18 @@
 matrix:
   include:
     - language: node_js
-      code_climate:
-        repo_token:
-           secure: a84e50756a52ef762a1a81bb3bbc3fa62ff2ac85db28990a8edaf5f3790b2c72
+      env:
+        global:
+          - CC_TEST_REPORTER_ID=a84e50756a52ef762a1a81bb3bbc3fa62ff2ac85db28990a8edaf5f3790b2c72
       node_js:
         - 'stable'
         - 'lts/*'
       before_script:
-        - npm install codeclimate-test-reporter nyc -g
+        - npm install -g nyc
+        - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        - chmod +x ./cc-test-reporter
+        - ./cc-test-reporter before-build
       script:
-        - ./node_modules/.bin/nyc --reporter=lcov npm test
+        - nyc --reporter=lcov npm test
       after_script:
-        - codeclimate-test-reporter < ./coverage/lcov.info
+        - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
