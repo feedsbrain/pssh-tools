@@ -1,6 +1,6 @@
 # pssh-tools
 
-[![Build Status](https://travis-ci.org/feedsbrain/pssh-tools.svg?branch=master)](https://travis-ci.org/feedsbrain/pssh-tools)
+[![Build Status](https://travis-ci.org/feedsbrain/pssh-tools.svg?branch=master)](https://travis-ci.org/feedsbrain/pssh-tools) [![Maintainability](https://api.codeclimate.com/v1/badges/916d04bffb3000cbda7d/maintainability)](https://codeclimate.com/github/feedsbrain/pssh-tools/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/916d04bffb3000cbda7d/test_coverage)](https://codeclimate.com/github/feedsbrain/pssh-tools/test_coverage)
 
 **Tools to generate PSSH Data and PSSH Box**
 
