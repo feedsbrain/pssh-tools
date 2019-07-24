@@ -1,8 +1,17 @@
 matrix:
   include:
     - language: node_js
+      env:
+        global:
+          - CC_TEST_REPORTER_ID=a84e50756a52ef762a1a81bb3bbc3fa62ff2ac85db28990a8edaf5f3790b2c72
       node_js:
         - 'stable'
         - 'lts/*'
+      before_script:
+        - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        - chmod +x ./cc-test-reporter
+        - ./cc-test-reporter before-build
       script:
         - npm test
+      after_script:
+        - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
