@@ -1,9 +1,9 @@
 matrix:
   include:
-    - env:
+    - language: node_js
+      env:
         global:
           - CC_TEST_REPORTER_ID=a84e50756a52ef762a1a81bb3bbc3fa62ff2ac85db28990a8edaf5f3790b2c72
-    - language: node_js
       node_js:
         - 'stable'
         - 'lts/*'
