@@ -116,7 +116,7 @@ test('Should be able to encode PlayReady content key using kid and key with corr
   console.log(`\nKey: ${JSON.stringify(result, null, 2)}\n`)
 
   t.not(result, undefined)
-  t.is(result.kid, PRO_CONTENT_KEY)
+  t.is(result.kid, MS_PRO_CONTENT_KEY)
   t.is(result.checksum, MS_PRO_CHECKSUM_KEY)
 })
 
