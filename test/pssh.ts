@@ -11,6 +11,11 @@ const PRO_CONTENT_KEY = 'Z0UjAauJ780BI0VniavN7w=='
 const PRO_CHECKSUM_KEY = '0x91WFtGXBI='
 const PRO_TEST_KEY_SEED = 'XVBovsmzhP9gRIZxWfFta3VVRPzVEWmJsazEJ46I'
 
+const MS_PRO_CONTENT_KEY = '4Rplb+TbNES8tGkNFWTEHA=='
+const MS_PRO_TEST_KID = '6f651ae1dbe44434bcb4690d1564c41c'
+const MS_PRO_TEST_KEY = '88da852ae4fa2e1e36aeb2d5c94997b1'
+const MS_PRO_CHECKSUM_KEY = 'KLj3QzQP/NA='
+
 test('Should return Widevine PSSH version 0 without KID', t => {
   const payload: WidevineEncodeConfig = { contentId: 'cenc-content-id', trackType: 'HD', provider: 'widevine_test', keyIds: [], protectionScheme: 'cenc', dataOnly: false }
 
@@ -95,6 +100,24 @@ test('Should be able to encode PlayReady content key with correct checksum', t =
   t.not(result, undefined)
   t.is(result.kid, PRO_CONTENT_KEY)
   t.is(result.checksum, PRO_CHECKSUM_KEY)
+})
+
+test('Should be able to encode PlayReady content key using test key seed with correct checksum', t => {
+  const result = pssh.playready.encodeKey({ kid: MS_PRO_TEST_KID, key: '' }, PRO_TEST_KEY_SEED)
+  console.log(`\nKey: ${JSON.stringify(result, null, 2)}\n`)
+
+  t.not(result, undefined)
+  t.is(result.kid, MS_PRO_CONTENT_KEY)
+  t.is(result.checksum, MS_PRO_CHECKSUM_KEY)
+})
+
+test('Should be able to encode PlayReady content key using kid and key with correct checksum', t => {
+  const result = pssh.playready.encodeKey({ kid: MS_PRO_TEST_KID, key: MS_PRO_TEST_KEY })
+  console.log(`\nKey: ${JSON.stringify(result, null, 2)}\n`)
+
+  t.not(result, undefined)
+  t.is(result.kid, MS_PRO_CONTENT_KEY)
+  t.is(result.checksum, MS_PRO_CHECKSUM_KEY)
 })
 
 test('Should return PlayReady PRO without LA_URL', t => {
