@@ -40,6 +40,20 @@ test('Should return Widevine PSSH version 0 with KIDs', t => {
   t.not(result.keyCount, 0)
 })
 
+test('Should return Widevine PSSH version 0 with Multiple KIDs', t => {
+  const payload: WidevineEncodeConfig = { contentId: 'cenc-content-id', keyIds: [KID, MS_PRO_TEST_KID], provider: 'widevine_test', protectionScheme: 'cenc', dataOnly: false }
+
+  const data = pssh.widevine.encodePssh(payload)
+  const result = pssh.tools.decodePssh(data)
+
+  if (result.printPssh) {
+    console.log(result.printPssh())
+  }
+
+  t.is(result.version, 0)
+  t.not(result.keyCount, 0)
+})
+
 test('Should return PlayReady PSSH version 1 with KID', t => {
   const payload: PlayReadyEncodeConfig = { keyPairs: [{ kid: KID, key: KEY }], licenseUrl: LA_URL, keySeed: '', compatibilityMode: false, dataOnly: false }
 
