@@ -80,10 +80,9 @@ const constructProXML4 = (keyPair: T.KeyPair, licenseUrl: string, keySeed: strin
   let xmlArray = ['<WRMHEADER xmlns="http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader" version="4.0.0.0">']
   xmlArray.push('<DATA>')
   xmlArray.push('<PROTECTINFO><KEYLEN>16</KEYLEN><ALGID>AESCTR</ALGID></PROTECTINFO>')
-  if (!checksum) {
-    xmlArray.push(`<KID>${key.kid}</KID>`)
-  } else {
-    xmlArray.push(`<KID>${key.kid}</KID><CHECKSUM>${key.checksum}</CHECKSUM>`)
+  xmlArray.push(`<KID>${key.kid}</KID>`)
+  if (checksum) {
+    xmlArray.push(`<CHECKSUM>${key.checksum}</CHECKSUM>`)
   }
   if (licenseUrl && licenseUrl !== '') {
     xmlArray.push(`<LA_URL>${licenseUrl}</LA_URL>`)
