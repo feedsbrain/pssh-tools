@@ -82,6 +82,30 @@ test('Should return PlayReady PSSH version 1 with Header Version 4.0.0.0 and KID
   t.is(result.keyCount, 1)
 })
 
+test('Should return PRO w/ Checksum', t => {
+  const payload: PlayReadyEncodeConfig = { keyPairs: [{ kid: KID, key: KEY }], licenseUrl: LA_URL, keySeed: '', compatibilityMode: true, dataOnly: true }
+  const data = pssh.playready.encodePssh(payload)
+  const result: PlayReadyData = pssh.playready.decodeData(data) as PlayReadyData
+
+  if (result && result.recordXml && result.recordSize) {
+    t.is(result.recordXml.includes('CHECKSUM'), true)
+  } else {
+    t.fail()
+  }
+})
+
+test('Should return PRO w/o Checksum', t => {
+  const payload: PlayReadyEncodeConfig = { keyPairs: [{ kid: KID, key: KEY }], licenseUrl: LA_URL, keySeed: '', compatibilityMode: true, dataOnly: true, checksum: false }
+  const data = pssh.playready.encodePssh(payload)
+  const result: PlayReadyData = pssh.playready.decodeData(data) as PlayReadyData
+
+  if (result && result.recordXml && result.recordSize) {
+    t.is(result.recordXml.includes('CHECKSUM'), false)
+  } else {
+    t.fail()
+  }
+})
+
 test('Should be able to decode PSSH generated from PSSH-BOX', t => {
   const result = pssh.tools.decodePssh(PSSH_TEST)
   if (result.printPssh) {

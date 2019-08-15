@@ -74,13 +74,17 @@ const generateContentKey = (keyId: string, keySeed: string = TEST_KEY_SEED): Key
   }
 }
 
-const constructProXML4 = (keyPair: T.KeyPair, licenseUrl: string, keySeed: string): string => {
+const constructProXML4 = (keyPair: T.KeyPair, licenseUrl: string, keySeed: string, checksum: boolean = true): string => {
   let key = encodeKey(keyPair, keySeed)
 
   let xmlArray = ['<WRMHEADER xmlns="http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader" version="4.0.0.0">']
   xmlArray.push('<DATA>')
   xmlArray.push('<PROTECTINFO><KEYLEN>16</KEYLEN><ALGID>AESCTR</ALGID></PROTECTINFO>')
-  xmlArray.push(`<KID>${key.kid}</KID><CHECKSUM>${key.checksum}</CHECKSUM>`)
+  if (!checksum) {
+    xmlArray.push(`<KID>${key.kid}</KID>`)
+  } else {
+    xmlArray.push(`<KID>${key.kid}</KID><CHECKSUM>${key.checksum}</CHECKSUM>`)
+  }
   if (licenseUrl && licenseUrl !== '') {
     xmlArray.push(`<LA_URL>${licenseUrl}</LA_URL>`)
   }
@@ -93,7 +97,7 @@ const constructProXML4 = (keyPair: T.KeyPair, licenseUrl: string, keySeed: strin
   return xmlArray.join('')
 }
 
-const constructProXML = (keyPairs: T.KeyPair[], licenseUrl: string, keySeed: string): string => {
+const constructProXML = (keyPairs: T.KeyPair[], licenseUrl: string, keySeed: string, checksum: boolean = true): string => {
   let keyIds = keyPairs.map((k) => {
     return encodeKey(k, keySeed)
   })
@@ -103,7 +107,11 @@ const constructProXML = (keyPairs: T.KeyPair[], licenseUrl: string, keySeed: str
   xmlArray.push('<PROTECTINFO><KIDS>')
   // Construct Key
   keyIds.forEach((key) => {
-    xmlArray.push(`<KID ALGID="AESCTR" CHECKSUM="${key.checksum}" VALUE="${key.kid}">`)
+    if (!checksum) {
+      xmlArray.push(`<KID ALGID="AESCTR" VALUE="${key.kid}">`)
+    } else {
+      xmlArray.push(`<KID ALGID="AESCTR" CHECKSUM="${key.checksum}" VALUE="${key.kid}">`)
+    }
     xmlArray.push('</KID>')
   })
   xmlArray.push('</KIDS></PROTECTINFO>')
@@ -132,7 +140,7 @@ const getPsshData = (request: T.PlayReadyDataEncodeConfig): string => {
   const licenseUrl = request.licenseUrl || ''
   const keySeed = request.keySeed || ''
   const emptyKey = { key: '', kid: '' }
-  const xmlData = request.compatibilityMode === true ? constructProXML4(request.keyPairs ? request.keyPairs[0] : emptyKey, licenseUrl, keySeed) : constructProXML(request.keyPairs ? request.keyPairs : [], licenseUrl, keySeed)
+  const xmlData = request.compatibilityMode === true ? constructProXML4(request.keyPairs ? request.keyPairs[0] : emptyKey, licenseUrl, keySeed, request.checksum) : constructProXML(request.keyPairs ? request.keyPairs : [], licenseUrl, keySeed, request.checksum)
 
   // Play Ready Object Header
   let headerBytes = Buffer.from(xmlData, 'utf16le')
