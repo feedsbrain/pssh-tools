@@ -22,6 +22,7 @@ export interface PlayReadyEncodeConfig {
   keySeed?: string
   compatibilityMode: boolean
   dataOnly: boolean
+  checksum?: boolean
 }
 
 export type PlayReadyDataEncodeConfig = Omit<PlayReadyEncodeConfig, 'dataOnly'>
