@@ -1,6 +1,6 @@
 {
   "name": "pssh-tools",
-  "version": "1.0.9",
+  "version": "1.0.12",
   "description": "Tools to generate PSSH Data and PSSH Box",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -43,14 +43,17 @@
       "ts"
     ],
     "files": [
-			"test/**/*"
-		],
+      "test/**/*"
+    ],
     "require": [
       "ts-node/register"
     ]
   },
   "nyc": {
-    "reporter": [ "lcov", "text" ],
+    "reporter": [
+      "lcov",
+      "text"
+    ],
     "extends": "@istanbuljs/nyc-config-typescript",
     "all": true,
     "check-coverage": true

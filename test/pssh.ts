@@ -2,18 +2,18 @@ import test from 'ava'
 import * as pssh from '../src/index'
 import { WidevineEncodeConfig, PlayReadyEncodeConfig, PlayReadyData } from '../src/lib/types';
 
-const KID = '0123456789abcdef0123456789abcdef'
-const KEY = '0123456789abcdef0123456789abcdef'
+const KID = '6f651ae1dbe44434bcb4690d1564c41c'
+const KEY = '2a85da88fae41e2e36aeb2d5c94997b1'
 const LA_URL = 'https://test.playready.microsoft.com/service/rightsmanager.asmx'
 const PSSH_TEST = 'AAAAQXBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAACESEJjp6TNjifjKjuoDBeg+VrUaCmludGVydHJ1c3QiASo='
 const PSSH_DATA_PR = 'pAIAAAEAAQCaAjwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4AWgAwAFUAagBBAGEAdQBKADcAOAAwAEIASQAwAFYAbgBpAGEAdgBOADcAdwA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgAwAHgAOQAxAFcARgB0AEcAWABCAEkAPQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APABMAEEAXwBVAFIATAA+AGgAdAB0AHAAOgAvAC8AdABlAHMAdAAuAHAAbABhAHkAcgBlAGEAZAB5AC4AbQBpAGMAcgBvAHMAbwBmAHQALgBjAG8AbQAvAHMAZQByAHYAaQBjAGUALwByAGkAZwBoAHQAcwBtAGEAbgBhAGcAZQByAC4AYQBzAG0AeAA8AC8ATABBAF8AVQBSAEwAPgA8AC8ARABBAFQAQQA+ADwALwBXAFIATQBIAEUAQQBEAEUAUgA+AA=='
-const PRO_CONTENT_KEY = 'Z0UjAauJ780BI0VniavN7w=='
-const PRO_CHECKSUM_KEY = '0x91WFtGXBI='
+const PRO_CONTENT_KEY = 'iNqFKuT6Lh42rrLVyUmXsQ=='
+const PRO_CHECKSUM_KEY = 'KLj3QzQP/NA='
 const PRO_TEST_KEY_SEED = 'XVBovsmzhP9gRIZxWfFta3VVRPzVEWmJsazEJ46I'
 
-const MS_PRO_CONTENT_KEY = '4Rplb+TbNES8tGkNFWTEHA=='
+const MS_PRO_CONTENT_KEY = 'iNqFKuT6Lh42rrLVyUmXsQ=='
 const MS_PRO_TEST_KID = '6f651ae1dbe44434bcb4690d1564c41c'
-const MS_PRO_TEST_KEY = '88da852ae4fa2e1e36aeb2d5c94997b1'
+const MS_PRO_TEST_KEY = '2a85da88fae41e2e36aeb2d5c94997b1'
 const MS_PRO_CHECKSUM_KEY = 'KLj3QzQP/NA='
 
 test('Should return Widevine PSSH version 0 without KID', t => {
@@ -136,7 +136,7 @@ test('Should be able to encode PlayReady content key with correct checksum', t =
   console.log(`\nKey: ${JSON.stringify(result, null, 2)}\n`)
 
   t.not(result, undefined)
-  t.is(result.kid, PRO_CONTENT_KEY)
+  t.is(result.key, PRO_CONTENT_KEY)
   t.is(result.checksum, PRO_CHECKSUM_KEY)
 })
 
@@ -145,7 +145,7 @@ test('Should be able to encode PlayReady content key using test key seed with co
   console.log(`\nKey: ${JSON.stringify(result, null, 2)}\n`)
 
   t.not(result, undefined)
-  t.is(result.kid, MS_PRO_CONTENT_KEY)
+  t.is(result.key, MS_PRO_CONTENT_KEY)
   t.is(result.checksum, MS_PRO_CHECKSUM_KEY)
 })
 
@@ -154,7 +154,7 @@ test('Should be able to encode PlayReady content key using kid and key with corr
   console.log(`\nKey: ${JSON.stringify(result, null, 2)}\n`)
 
   t.not(result, undefined)
-  t.is(result.kid, MS_PRO_CONTENT_KEY)
+  t.is(result.key, MS_PRO_CONTENT_KEY)
   t.is(result.checksum, MS_PRO_CHECKSUM_KEY)
 })
 
