@@ -63,15 +63,13 @@ const generateContentKey = (keyId: string, keySeed: string = TEST_KEY_SEED): Key
     keyBuffer[i] = value
   }
 
-  const contentKey = keyBuffer.toString('hex')
-
   // Calculate checksum
-  const cipher = crypto.createCipheriv('aes-128-ecb', swapEndian(contentKey), '').setAutoPadding(false)
+  const cipher = crypto.createCipheriv('aes-128-ecb', keyBuffer, '').setAutoPadding(false)
   const checksum = cipher.update(kidBuffer).slice(0, 8).toString('base64')
 
   return {
     kid: kidBuffer.toString('base64'),
-    key: swapEndian(contentKey).toString('base64'),
+    key: keyBuffer.toString('base64'),
     checksum
   }
 }
@@ -187,21 +185,21 @@ export const decodeData = (data: string) => {
 
 export const decodeKey = (keyData: string) => {
   const keyBuffer = Buffer.from(keyData, 'base64')
-  return swapEndian(keyBuffer.toString('hex')).toString('hex')
+  return keyBuffer.toString('hex')
 }
 
 export const encodeKey = (keyPair: T.KeyPair, keySeed: string = ''): KeyItem => {
   const kidBuffer = swapEndian(keyPair.kid)
 
   const key = keySeed && keySeed.length ? Buffer.from(generateContentKey(keyPair.kid, keySeed).key, 'base64').toString('hex') : keyPair.key
-  const keyBuffer = swapEndian(key)
+  const keyBuffer = Buffer.from(key, 'hex')
 
   const cipher = crypto.createCipheriv('aes-128-ecb', keyBuffer, '').setAutoPadding(false)
   const checksum = cipher.update(kidBuffer).slice(0, 8).toString('base64')
 
   return {
     kid: kidBuffer.toString('base64'),
-    key: swapEndian(key).toString('base64'),
+    key: keyBuffer.toString('base64'),
     checksum
   }
 }
