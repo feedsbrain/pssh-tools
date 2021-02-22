@@ -1,6 +1,6 @@
 import test from 'ava'
 import * as pssh from '../src/index'
-import { WidevineEncodeConfig, PlayReadyEncodeConfig, PlayReadyData } from '../src/lib/types';
+import { WidevineEncodeConfig, PlayReadyEncodeConfig, PlayReadyData } from '../src/lib/types'
 
 const KID = '6f651ae1dbe44434bcb4690d1564c41c'
 const KEY = '2a85da88fae41e2e36aeb2d5c94997b1'
@@ -182,7 +182,7 @@ test('Should return PlayReady PRO without LA_URL', t => {
   }
 
   if (result.dataObject) {
-    let pro: PlayReadyData = result.dataObject as PlayReadyData
+    const pro: PlayReadyData = result.dataObject as PlayReadyData
     t.is(pro.recordXml.includes(LA_URL), false)
   }
 })
@@ -198,7 +198,7 @@ test('Should return PlayReady PRO with LA_URL', t => {
   }
 
   if (result.dataObject) {
-    let pro: PlayReadyData = result.dataObject as PlayReadyData
+    const pro: PlayReadyData = result.dataObject as PlayReadyData
     t.is(pro.recordXml.includes(LA_URL), true)
   }
 })
