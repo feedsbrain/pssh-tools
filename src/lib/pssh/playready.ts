@@ -79,6 +79,7 @@ const constructProXML4 = (keyPair: T.KeyPair, licenseUrl: string, keySeed: strin
 
   const xmlArray = ['<WRMHEADER xmlns="http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader" version="4.0.0.0">']
 
+  let xmlArray = ['<WRMHEADER xmlns="http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader" version="4.0.0.0">']
   xmlArray.push('<DATA>')
   xmlArray.push('<PROTECTINFO><KEYLEN>16</KEYLEN><ALGID>AESCTR</ALGID></PROTECTINFO>')
   xmlArray.push(`<KID>${key.kid}</KID>`)
@@ -90,7 +91,6 @@ const constructProXML4 = (keyPair: T.KeyPair, licenseUrl: string, keySeed: strin
   if (licenseUrl && licenseUrl !== '') {
     xmlArray.push(`<LA_URL>${licenseUrl}</LA_URL>`)
   }
-
   xmlArray.push('<CUSTOMATTRIBUTES>')
   xmlArray.push('<IIS_DRM_VERSION>8.0.1906.32</IIS_DRM_VERSION>')
   xmlArray.push('</CUSTOMATTRIBUTES>')
@@ -104,13 +104,10 @@ const constructProXML = (keyPairs: T.KeyPair[], licenseUrl: string, keySeed: str
   const keyIds = keyPairs.map((k) => {
     return encodeKey(k, keySeed)
   })
-
   const xmlArray = ['<?xml version="1.0" encoding="UTF-8"?>']
-
   xmlArray.push('<WRMHEADER xmlns="http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader" version="4.2.0.0">')
   xmlArray.push('<DATA>')
   xmlArray.push('<PROTECTINFO><KIDS>')
-
   // Construct Key
   keyIds.forEach((key) => {
     if (!checksum) {
@@ -120,9 +117,7 @@ const constructProXML = (keyPairs: T.KeyPair[], licenseUrl: string, keySeed: str
     }
     xmlArray.push('</KID>')
   })
-
   xmlArray.push('</KIDS></PROTECTINFO>')
-
   // Construct License URL
   if (licenseUrl && licenseUrl !== '') {
     xmlArray.push('<LA_URL>')
@@ -136,13 +131,11 @@ const constructProXML = (keyPairs: T.KeyPair[], licenseUrl: string, keySeed: str
     }
     xmlArray.push('</LA_URL>')
   }
-
   xmlArray.push('<CUSTOMATTRIBUTES>')
   xmlArray.push('<IIS_DRM_VERSION>8.0.1906.32</IIS_DRM_VERSION>')
   xmlArray.push('</CUSTOMATTRIBUTES>')
   xmlArray.push('</DATA>')
   xmlArray.push('</WRMHEADER>')
-
   return xmlArray.join('')
 }
 
@@ -179,7 +172,8 @@ const getPsshBox = (request: T.PlayReadyDataEncodeConfig) => {
     keyIds: request.keyPairs ? request.keyPairs.map((k) => k.kid) : [],
     data: data
   }
-  return tools.getPsshHeader(requestData)
+  const psshHeader = tools.getPsshHeader(requestData)
+  return psshHeader
 }
 
 export const encodePssh = (request: T.PlayReadyEncodeConfig) => {

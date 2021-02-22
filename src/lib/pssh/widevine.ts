@@ -1,7 +1,7 @@
 import * as path from 'path'
 import * as protobuf from 'protobufjs'
+import * as T from '../types';
 
-import * as T from '../types'
 import * as tools from './tools'
 
 interface WidevineProtoPayload {
@@ -21,26 +21,21 @@ const getPsshData = (request: T.WidevineDataEncodeConfig) => {
   const payload: WidevineProtoPayload = {
     algorithm: 1 // 0: Unencrypted - 1: AESCTR
   }
-
   if (request.keyIds && request.keyIds.length > 0) {
     const keyIdsBuffer = request.keyIds.map((key) => {
       return Buffer.from(key, 'hex')
     })
     payload.keyId = keyIdsBuffer
   }
-
   if (request.contentId) {
     payload.contentId = Buffer.from(request.contentId)
   }
-
   if (request.trackType !== '') {
     payload.trackType = request.trackType
   }
-
   if (request.provider !== '') {
     payload.provider = request.provider
   }
-
   if (request.protectionScheme) {
     payload.protectionScheme = Buffer.from(request.protectionScheme).readInt32BE(0)
   }
@@ -61,10 +56,11 @@ const getPsshBox = (request: T.WidevineDataEncodeConfig) => {
   const data = getPsshData(request)
   const requestData: T.HeaderConfig = {
     systemId: tools.system.WIDEVINE.id,
-    keyIds: request.keyIds,
+    keyIds: request.keyIds ,
     data: data
   }
-  return tools.getPsshHeader(requestData)
+  const psshHeader = tools.getPsshHeader(requestData)
+  return psshHeader
 }
 
 export const encodePssh = (request: T.WidevineEncodeConfig) => {

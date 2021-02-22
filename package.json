@@ -1,6 +1,6 @@
 {
   "name": "pssh-tools",
-  "version": "1.1.0",
+  "version": "1.0.7",
   "description": "Tools to generate PSSH Data and PSSH Box",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -22,7 +22,7 @@
   "author": "Indra Gunawan <feedsbrain@gmail.com>",
   "license": "BSD",
   "dependencies": {
-    "protobufjs": "^6.10.2"
+    "protobufjs": "^6.8.8"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
@@ -44,9 +44,7 @@
     "dist/src/**/*"
   ],
   "ava": {
-    "files": [
-      "./test/**/*.ts"
-    ],
+    "compileEnhancements": false,
     "extensions": [
       "ts"
     ],
