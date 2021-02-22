@@ -1,7 +1,7 @@
 import * as path from 'path'
 import * as protobuf from 'protobufjs'
-import * as T from '../types'
 
+import * as T from '../types'
 import * as tools from './tools'
 
 interface WidevineProtoPayload {
