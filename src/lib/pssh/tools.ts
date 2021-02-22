@@ -1,6 +1,6 @@
 import * as path from 'path'
 import * as protobuf from 'protobufjs'
-import { HeaderConfig, PlayReadyData, WidevineData, DecodeResult, PsshData } from '../types';
+import { HeaderConfig, PlayReadyData, WidevineData, DecodeResult } from '../types'
 
 export const system = {
   WIDEVINE: { id: 'EDEF8BA979D64ACEA3C827DCD51D21ED', name: 'Widevine' },
@@ -26,12 +26,12 @@ const decodeWidevineHeader = (data: Buffer) => {
 }
 
 const createPsshHeader = (version: number) => {
-  let psshHeaderBuffer = Buffer.from([0x70, 0x73, 0x73, 0x68])
+  const psshHeaderBuffer = Buffer.from([0x70, 0x73, 0x73, 0x68])
 
-  let versionBuffer = Buffer.alloc(2)
+  const versionBuffer = Buffer.alloc(2)
   versionBuffer.writeInt16LE(version, 0)
 
-  let flagBuffer = Buffer.alloc(2)
+  const flagBuffer = Buffer.alloc(2)
   flagBuffer.writeInt16BE(0, 0)
 
   return Buffer.concat([psshHeaderBuffer, versionBuffer, flagBuffer])
@@ -57,30 +57,30 @@ export const getPsshHeader = (request: HeaderConfig): string => {
 
   // key ids
   if (version === 1) {
-    let keyCountBuffer = Buffer.alloc(4)
+    const keyCountBuffer = Buffer.alloc(4)
     keyCountBuffer.writeInt32BE(keyIds.length, 0)
     pssh.push(keyCountBuffer)
 
-    let kidsBufferArray = []
+    const kidsBufferArray = []
     for (let i = 0; i < keyIds.length; i++) {
       kidsBufferArray.push(Buffer.from(keyIds[i], 'hex'))
     }
-    let kidsBuffer = Buffer.concat(kidsBufferArray)
+    const kidsBuffer = Buffer.concat(kidsBufferArray)
     if (kidsBuffer.length > 0) {
       pssh.push(kidsBuffer)
     }
   }
 
   // data
-  let dataBuffer = Buffer.from(request.data, 'base64')
-  let dataSizeBuffer = Buffer.alloc(4)
+  const dataBuffer = Buffer.from(request.data, 'base64')
+  const dataSizeBuffer = Buffer.alloc(4)
   dataSizeBuffer.writeInt32BE(dataBuffer.length, 0)
 
   pssh.push(dataSizeBuffer)
   pssh.push(dataBuffer)
 
   // total size
-  let psshSizeBuffer = Buffer.alloc(4)
+  const psshSizeBuffer = Buffer.alloc(4)
   let totalLength = 4
   pssh.forEach((data) => {
     totalLength += data.length
@@ -96,21 +96,21 @@ export const decodePssh = (data: string) => {
   const decodedData = Buffer.from(data, 'base64')
 
   // pssh header
-  let psshSize = Buffer.alloc(4)
+  const psshSize = Buffer.alloc(4)
   decodedData.copy(psshSize, 0, 0, 4)
-  let psshHeader = Buffer.alloc(4)
+  const psshHeader = Buffer.alloc(4)
   decodedData.copy(psshHeader, 0, 4, 8)
 
   // fullbox header
-  let headerVersion = Buffer.alloc(2)
+  const headerVersion = Buffer.alloc(2)
   decodedData.copy(headerVersion, 0, 8, 10)
-  let psshVersion = headerVersion.readInt16LE(0)
+  const psshVersion = headerVersion.readInt16LE(0)
 
-  let headerFlag = Buffer.alloc(2)
+  const headerFlag = Buffer.alloc(2)
   decodedData.copy(headerFlag, 0, 10, 12)
 
   // system id
-  let systemId = Buffer.alloc(16)
+  const systemId = Buffer.alloc(16)
   decodedData.copy(systemId, 0, 12, 28)
 
   let dataStartPosition = 28
@@ -118,7 +118,7 @@ export const decodePssh = (data: string) => {
   let keyCountInt = 0
   if (psshVersion === 1) {
     // key count
-    let keyCount = Buffer.alloc(4)
+    const keyCount = Buffer.alloc(4)
     decodedData.copy(keyCount, 0, 28, 32)
 
     keyCountInt = keyCount.readInt32BE(0)
@@ -127,7 +127,7 @@ export const decodePssh = (data: string) => {
       result.keyIds = []
       for (let i = 0; i < keyCountInt; i++) {
         // key id
-        let keyId = Buffer.alloc(16)
+        const keyId = Buffer.alloc(16)
         decodedData.copy(keyId, 0, 32 + (i * 16), 32 + ((i + 1) * 16))
         result.keyIds.push(keyId.toString('hex'))
       }
@@ -136,12 +136,12 @@ export const decodePssh = (data: string) => {
   }
 
   // data size
-  let dataSize = Buffer.alloc(4)
+  const dataSize = Buffer.alloc(4)
   decodedData.copy(dataSize, 0, dataStartPosition, dataStartPosition + dataSize.length)
-  let psshDataSize = dataSize.readInt32BE(0)
+  const psshDataSize = dataSize.readInt32BE(0)
 
   // data
-  let psshData = Buffer.alloc(psshDataSize)
+  const psshData = Buffer.alloc(psshDataSize)
   decodedData.copy(psshData, 0, dataStartPosition + dataSize.length, dataStartPosition + dataSize.length + psshData.length)
 
   let systemName = ''
@@ -171,7 +171,7 @@ export const decodePssh = (data: string) => {
 
   result.printPssh = () => {
     // pssh version
-    let psshArray = [`PSSH Box v${psshVersion}`]
+    const psshArray = [`PSSH Box v${psshVersion}`]
 
     // system id
     psshArray.push(`  System ID: ${systemName} ${stringHexToGuid(systemId.toString('hex'))}`)
@@ -192,7 +192,7 @@ export const decodePssh = (data: string) => {
 
       // widevine data
       if (systemName === system.WIDEVINE.name && result.dataObject) {
-        let dataObject: WidevineData = result.dataObject as WidevineData
+        const dataObject: WidevineData = result.dataObject as WidevineData
         if (dataObject.keyId) {
           psshArray.push(`      Key IDs (${dataObject.keyId.length})`)
           dataObject.keyId.forEach((key) => {
@@ -212,7 +212,7 @@ export const decodePssh = (data: string) => {
 
       // playready data
       if (systemName === system.PLAYREADY.name && result.dataObject) {
-        let dataObject: PlayReadyData = result.dataObject as PlayReadyData
+        const dataObject: PlayReadyData = result.dataObject as PlayReadyData
         psshArray.push(`      Record size(${dataObject.recordSize})`)
         if (dataObject.recordType) {
           switch (dataObject.recordType) {
@@ -241,12 +241,12 @@ export const decodePssh = (data: string) => {
 
 const decodeWVData = (psshData: Buffer): WidevineData => {
   // cenc header
-  let header = decodeWidevineHeader(psshData)
-  let wvData: WidevineData = {}
+  const header = decodeWidevineHeader(psshData)
+  const wvData: WidevineData = {}
 
   if (header.keyId && header.keyId.length > 0) {
     wvData.widevineKeyCount = header.keyId.length
-    let decodedKeys = header.keyId.map((key: string) => {
+    const decodedKeys = header.keyId.map((key: string) => {
       return Buffer.from(key, 'base64').toString('hex')
     })
     wvData.keyId = decodedKeys
@@ -262,14 +262,14 @@ const decodeWVData = (psshData: Buffer): WidevineData => {
 
 const decodePRData = (psshData: Buffer): PlayReadyData => {
   // pro header
-  let proHeader = Buffer.alloc(10)
+  const proHeader = Buffer.alloc(10)
   psshData.copy(proHeader, 0, 0, 10)
 
-  let proHeaderLength = proHeader.readInt32LE(0)
+  const proHeaderLength = proHeader.readInt32LE(0)
   // let proRecordCount = proHeader.readInt16LE(4)
-  let proRecordType = proHeader.readInt16LE(6)
-  let proDataLength = proHeader.readInt16LE(8)
-  let proData = Buffer.alloc(proDataLength)
+  const proRecordType = proHeader.readInt16LE(6)
+  const proDataLength = proHeader.readInt16LE(8)
+  const proData = Buffer.alloc(proDataLength)
   psshData.copy(proData, 0, 10, proHeaderLength)
 
   return {
@@ -280,7 +280,7 @@ const decodePRData = (psshData: Buffer): PlayReadyData => {
 }
 
 const stringHexToGuid = (value: string) => {
-  let guidArray = []
+  const guidArray = []
   guidArray.push(value.slice(0, 8))
   guidArray.push(value.slice(8, 12))
   guidArray.push(value.slice(12, 16))

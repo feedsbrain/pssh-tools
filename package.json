@@ -1,14 +1,15 @@
 {
   "name": "pssh-tools",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "Tools to generate PSSH Data and PSSH Box",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
     "prepare": "tsc -p .",
     "build": "tsc -p .",
-    "pretest": "tslint -p .",
-    "test": "tsc -p . && cp -R ./src/lib/pssh/proto ./dist/src/lib/pssh/ && ava ./dist/test/*.js --verbose"
+    "pretest": "eslint **/*.ts",
+    "test": "tsc -p . && cp -R ./src/lib/pssh/proto ./dist/src/lib/pssh/ && ava --verbose",
+    "lint": "eslint **/*.ts --fix"
   },
   "keywords": [
     "pssh",
@@ -21,21 +22,29 @@
   "author": "Indra Gunawan <feedsbrain@gmail.com>",
   "license": "BSD",
   "dependencies": {
-    "protobufjs": "^6.8.8"
+    "protobufjs": "^6.10.2"
   },
   "devDependencies": {
-    "ava": "^2.1.0",
-    "ts-node": "^8.3.0",
-    "tslint": "^5.18.0",
-    "tslint-config-standard": "^8.0.1",
-    "typescript": "^3.5.2"
+    "@types/node": "^13.13.45",
+    "@typescript-eslint/eslint-plugin": "^4.15.1",
+    "@typescript-eslint/parser": "^4.15.1",
+    "ava": "^3.15.0",
+    "eslint": "^7.20.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.3.1",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.9"
   },
   "files": [
     "dist/src/*",
     "dist/src/**/*"
   ],
   "ava": {
-    "compileEnhancements": false,
+    "files": [
+      "./test/**/*.ts"
+    ],
     "extensions": [
       "ts"
     ],

@@ -1,6 +1,6 @@
 import test from 'ava'
 import * as pssh from '../src/index'
-import { WidevineEncodeConfig, PlayReadyEncodeConfig, PlayReadyData } from '../src/lib/types';
+import { WidevineEncodeConfig, PlayReadyEncodeConfig, PlayReadyData } from '../src/lib/types'
 
 const KID = '0123456789abcdef0123456789abcdef'
 const KEY = '0123456789abcdef0123456789abcdef'
@@ -9,7 +9,6 @@ const PSSH_TEST = 'AAAAQXBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAACESEJjp6TNjifjKjuoDB
 const PSSH_DATA_PR = 'pAIAAAEAAQCaAjwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4AWgAwAFUAagBBAGEAdQBKADcAOAAwAEIASQAwAFYAbgBpAGEAdgBOADcAdwA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgAwAHgAOQAxAFcARgB0AEcAWABCAEkAPQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APABMAEEAXwBVAFIATAA+AGgAdAB0AHAAOgAvAC8AdABlAHMAdAAuAHAAbABhAHkAcgBlAGEAZAB5AC4AbQBpAGMAcgBvAHMAbwBmAHQALgBjAG8AbQAvAHMAZQByAHYAaQBjAGUALwByAGkAZwBoAHQAcwBtAGEAbgBhAGcAZQByAC4AYQBzAG0AeAA8AC8ATABBAF8AVQBSAEwAPgA8AC8ARABBAFQAQQA+ADwALwBXAFIATQBIAEUAQQBEAEUAUgA+AA=='
 const PRO_CONTENT_KEY = 'Z0UjAauJ780BI0VniavN7w=='
 const PRO_CHECKSUM_KEY = '0x91WFtGXBI='
-const PRO_TEST_KEY_SEED = 'XVBovsmzhP9gRIZxWfFta3VVRPzVEWmJsazEJ46I'
 
 test('Should return Widevine PSSH version 0 without KID', t => {
   const payload: WidevineEncodeConfig = { contentId: 'cenc-content-id', trackType: 'HD', provider: 'widevine_test', keyIds: [], protectionScheme: 'cenc', dataOnly: false }
@@ -108,7 +107,7 @@ test('Should return PlayReady PRO without LA_URL', t => {
   }
 
   if (result.dataObject) {
-    let pro: PlayReadyData = result.dataObject as PlayReadyData
+    const pro: PlayReadyData = result.dataObject as PlayReadyData
     t.is(pro.recordXml.includes(LA_URL), false)
   }
 })
@@ -124,7 +123,7 @@ test('Should return PlayReady PRO with LA_URL', t => {
   }
 
   if (result.dataObject) {
-    let pro: PlayReadyData = result.dataObject as PlayReadyData
+    const pro: PlayReadyData = result.dataObject as PlayReadyData
     t.is(pro.recordXml.includes(LA_URL), true)
   }
 })
