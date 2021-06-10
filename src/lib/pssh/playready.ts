@@ -79,7 +79,6 @@ const constructProXML4 = (keyPair: T.KeyPair, licenseUrl: string, keySeed: strin
 
   const xmlArray = ['<WRMHEADER xmlns="http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader" version="4.0.0.0">']
 
-  let xmlArray = ['<WRMHEADER xmlns="http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader" version="4.0.0.0">']
   xmlArray.push('<DATA>')
   xmlArray.push('<PROTECTINFO><KEYLEN>16</KEYLEN><ALGID>AESCTR</ALGID></PROTECTINFO>')
   xmlArray.push(`<KID>${key.kid}</KID>`)
