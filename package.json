@@ -44,7 +44,9 @@
     "dist/src/**/*"
   ],
   "ava": {
-    "compileEnhancements": false,
+    "files": [
+      "./test/**/*.ts"
+    ],
     "extensions": [
       "ts"
     ],
