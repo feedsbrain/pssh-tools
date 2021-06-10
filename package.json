@@ -1,6 +1,6 @@
 {
   "name": "@feedsbrain/pssh-tools",
-  "version": "1.0.7",
+  "version": "1.1.1",
   "description": "Tools to generate PSSH Data and PSSH Box",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",

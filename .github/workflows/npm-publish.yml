@@ -28,9 +28,4 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@feedsbrain'
-      - run: |
-          echo "//npm.pkg.github.com:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
-          npm ci && npm publish
-          rm ~/.npmrc
+      - run: npm ci && npm publish
