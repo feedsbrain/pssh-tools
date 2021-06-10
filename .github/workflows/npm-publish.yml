@@ -31,7 +31,23 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
           scope: '@feedsbrain'
 
-      - name: Authenticate with the GitHub Package Registry
+      - name: Get Package Version
+        run: |
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+          # Save Image version info to GitHub environment variable
+          echo "PACKAGE_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: 'NPM Version'
+        uses: reedyuk/npm-version@1.1.1
+        with:
+          version: ${{ env.PACKAGE_VERSION }}
+
+      - name: Authenticate to GitHub Package Registry
         run: echo "//npm.pkg.github.com:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
 
       - name: Publishing to GitHub Package
