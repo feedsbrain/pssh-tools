@@ -22,7 +22,7 @@
   "author": "Indra Gunawan <feedsbrain@gmail.com>",
   "license": "BSD",
   "dependencies": {
-    "protobufjs": "^6.8.8"
+    "protobufjs": "^6.11.3"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
