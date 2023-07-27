@@ -42,7 +42,7 @@ jobs:
           # Save Image version info to GitHub environment variable
           echo "PACKAGE_VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: 'NPM Version'
+      - name: NPM Version
         uses: reedyuk/npm-version@1.1.1
         with:
           version: ${{ env.PACKAGE_VERSION }}
