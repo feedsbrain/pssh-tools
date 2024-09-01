@@ -1,6 +1,6 @@
 {
   "name": "@feedsbrain/pssh-tools",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Tools to generate PSSH Data and PSSH Box",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -9,7 +9,8 @@
     "prepare": "npm run build",
     "pretest": "npm run build",
     "test": "nyc ava",
-    "lint": "eslint **/*.ts --fix"
+    "lint": "eslint **/*.ts --fix",
+    "pub": "npm version patch --force && npm publish"
   },
   "keywords": [
     "pssh",
