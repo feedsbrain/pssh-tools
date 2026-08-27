@@ -23,11 +23,6 @@ plugins:
       - TODO
   markdownlint:
     enabled: true
-  nodesecurity:
-    enabled: true
-  tslint:
-    enabled: true
-    config: tslint.json
 exclude_patterns:
   - 'dist/'
   - 'coverage/'

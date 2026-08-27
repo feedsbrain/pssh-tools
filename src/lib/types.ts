@@ -1,5 +1,3 @@
-type Omit<K, KEY extends keyof K> = Pick<K, Exclude<keyof K, KEY>>
-
 export interface WidevineEncodeConfig {
   contentId: string
   dataOnly: boolean
@@ -55,5 +53,5 @@ export interface DecodeResult {
   systemName?: string
   version?: number
   keyCount?: number
-  printPssh?: Function
+  printPssh?: () => string
 }

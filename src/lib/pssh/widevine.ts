@@ -1,6 +1,6 @@
 import * as path from 'path'
 import * as protobuf from 'protobufjs'
-import * as T from '../types';
+import * as T from '../types'
 
 import * as tools from './tools'
 
@@ -56,8 +56,8 @@ const getPsshBox = (request: T.WidevineDataEncodeConfig) => {
   const data = getPsshData(request)
   const requestData: T.HeaderConfig = {
     systemId: tools.system.WIDEVINE.id,
-    keyIds: request.keyIds ,
-    data: data
+    keyIds: request.keyIds,
+    data
   }
   const psshHeader = tools.getPsshHeader(requestData)
   return psshHeader

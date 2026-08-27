@@ -16,10 +16,10 @@ const swapEndian = (keyId: string): Buffer => {
   const keyIdBytes = Buffer.from(keyId, 'hex')
   const keyIdBuffer = Buffer.concat(
     [
-      keyIdBytes.slice(0, 4).swap32(),
-      keyIdBytes.slice(4, 6).swap16(),
-      keyIdBytes.slice(6, 8).swap16(),
-      keyIdBytes.slice(8, 16)
+      keyIdBytes.subarray(0, 4).swap32(),
+      keyIdBytes.subarray(4, 6).swap16(),
+      keyIdBytes.subarray(6, 8).swap16(),
+      keyIdBytes.subarray(8, 16)
     ],
     DRM_AES_KEYSIZE_128
   )
@@ -64,8 +64,8 @@ const generateContentKey = (keyId: string, keySeed: string = TEST_KEY_SEED): Key
   }
 
   // Calculate checksum
-  const cipher = crypto.createCipheriv('aes-128-ecb', keyBuffer, '').setAutoPadding(false)
-  const checksum = cipher.update(kidBuffer).slice(0, 8).toString('base64')
+  const cipher = crypto.createCipheriv('aes-128-ecb', keyBuffer, null).setAutoPadding(false)
+  const checksum = cipher.update(kidBuffer).subarray(0, 8).toString('base64')
 
   return {
     kid: kidBuffer.toString('base64'),
@@ -169,7 +169,7 @@ const getPsshBox = (request: T.PlayReadyDataEncodeConfig) => {
   const requestData: T.HeaderConfig = {
     systemId: tools.system.PLAYREADY.id,
     keyIds: request.keyPairs ? request.keyPairs.map((k) => k.kid) : [],
-    data: data
+    data
   }
   const psshHeader = tools.getPsshHeader(requestData)
   return psshHeader
@@ -200,8 +200,8 @@ export const encodeKey = (keyPair: T.KeyPair, keySeed: string = ''): KeyItem => 
 
   // Calculate the checksum with provided key
   const keyBuffer = Buffer.from(keyPair.key, 'hex')
-  const cipher = crypto.createCipheriv('aes-128-ecb', keyBuffer, '').setAutoPadding(false)
-  const checksum = cipher.update(kidBuffer).slice(0, 8).toString('base64')
+  const cipher = crypto.createCipheriv('aes-128-ecb', keyBuffer, null).setAutoPadding(false)
+  const checksum = cipher.update(kidBuffer).subarray(0, 8).toString('base64')
 
   return {
     kid: kidBuffer.toString('base64'),
