@@ -7,13 +7,24 @@
   "engines": {
     "node": ">=18"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/feedsbrain/pssh-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/feedsbrain/pssh-tools/issues"
+  },
+  "homepage": "https://github.com/feedsbrain/pssh-tools#readme",
   "scripts": {
     "build": "eslint . && tsc -p . && cp -R ./src/lib/pssh/proto ./dist/src/lib/pssh/",
     "prepare": "npm run build",
     "pretest": "npm run build",
     "test": "c8 ava",
     "lint": "eslint . --fix",
-    "pub": "npm version patch --force && npm publish"
+    "publish:npm": "npm publish --registry=https://registry.npmjs.org",
+    "publish:github": "npm publish --registry=https://npm.pkg.github.com",
+    "publish:all": "npm run publish:npm && npm run publish:github",
+    "pub": "npm version patch --force && npm run publish:all && git push --follow-tags"
   },
   "keywords": [
     "pssh",
@@ -64,6 +75,6 @@
     "all": true
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   }
 }

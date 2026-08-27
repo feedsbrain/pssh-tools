@@ -1,5 +1,9 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+# Builds, tests, and publishes the package to BOTH the public npm registry
+# and GitHub Packages when a GitHub Release is created.
+#
+# Required repository secret:
+#   NPM_TOKEN  - an npmjs.com automation/publish token with access to @feedsbrain
+# (GITHUB_TOKEN is provided automatically for the GitHub Packages publish.)
 
 name: NPM Publish
 
@@ -19,7 +23,25 @@ jobs:
       - run: npm ci
       - run: npm test
 
-  publish:
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@feedsbrain'
+      - run: npm ci
+      - name: Align version with release tag
+        run: npm version "${GITHUB_REF_NAME#v}" --no-git-tag-version --allow-same-version
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-github:
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -33,27 +55,9 @@ jobs:
           cache: npm
           registry-url: 'https://npm.pkg.github.com'
           scope: '@feedsbrain'
-
-      - name: Get Package Version
-        run: |
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-
-          # Save Image version info to GitHub environment variable
-          echo "PACKAGE_VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: NPM Version
-        uses: reedyuk/npm-version@1.1.1
-        with:
-          version: ${{ env.PACKAGE_VERSION }}
-
-      - name: Authenticate to GitHub Package Registry
-        run: echo "//npm.pkg.github.com:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
-
-      - name: Publishing to GitHub Package
-        run: npm ci && npm publish
+      - run: npm ci
+      - name: Align version with release tag
+        run: npm version "${GITHUB_REF_NAME#v}" --no-git-tag-version --allow-same-version
+      - run: npm publish
         env:
-            NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
