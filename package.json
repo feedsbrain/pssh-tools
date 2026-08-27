@@ -1,15 +1,18 @@
 {
   "name": "@feedsbrain/pssh-tools",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Tools to generate PSSH Data and PSSH Box",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "build": "eslint **/*.ts && tsc -p . && cp -R ./src/lib/pssh/proto ./dist/src/lib/pssh/",
+    "build": "eslint . && tsc -p . && cp -R ./src/lib/pssh/proto ./dist/src/lib/pssh/",
     "prepare": "npm run build",
     "pretest": "npm run build",
-    "test": "nyc ava",
-    "lint": "eslint **/*.ts --fix",
+    "test": "c8 ava",
+    "lint": "eslint . --fix",
     "pub": "npm version patch --force && npm publish"
   },
   "keywords": [
@@ -23,22 +26,17 @@
   "author": "Indra Gunawan <feedsbrain@gmail.com>",
   "license": "BSD",
   "dependencies": {
-    "protobufjs": "^7.2.4"
+    "protobufjs": "^8.8.0"
   },
   "devDependencies": {
-    "@istanbuljs/nyc-config-typescript": "^1.0.2",
-    "@types/node": "^20.4.5",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "ava": "^5.3.1",
-    "eslint": "^8.57.0",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^6.1.1",
-    "nyc": "^15.1.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "@types/node": "^24.3.0",
+    "ava": "^6.4.1",
+    "c8": "^10.1.3",
+    "eslint": "^9.39.5",
+    "neostandard": "^0.13.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0"
   },
   "files": [
     "dist/src/*",
@@ -48,21 +46,22 @@
     "files": [
       "./test/**/*.ts"
     ],
-    "extensions": [
-      "ts"
-    ],
-    "require": [
-      "ts-node/register"
+    "extensions": {
+      "ts": "commonjs"
+    },
+    "nodeArguments": [
+      "--import=tsx"
     ]
   },
-  "nyc": {
+  "c8": {
     "reporter": [
       "lcov",
       "text"
     ],
-    "extends": "@istanbuljs/nyc-config-typescript",
-    "all": true,
-    "check-coverage": true
+    "include": [
+      "src/**/*.ts"
+    ],
+    "all": true
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
